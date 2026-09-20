@@ -1,0 +1,34 @@
+/* 4px base. Generous between sections (--space-8+), tight inside data regions (--space-1/2). */
+:root {
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 999px;
+
+  --border-width: 1px;
+
+  /* Data density */
+  --row-height: 34px;
+  --row-height-compact: 28px;
+  --control-height-sm: 24px;
+  --control-height: 30px;
+  --control-height-lg: 36px;
+
+  --sidebar-width: 224px;
+  --topbar-height: 48px;
+  --content-max: 1280px;
+}

@@ -1,0 +1,12 @@
+/* Elevation is almost entirely borders. Shadows exist only for floating layers. */
+:root {
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.36), 0 0 0 1px var(--border-default);
+  --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.48), 0 0 0 1px var(--border-default);
+
+  --duration-fast: 80ms;
+  --duration-base: 130ms;
+  --duration-slow: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0.2, 1);
+}

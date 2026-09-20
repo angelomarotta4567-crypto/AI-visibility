@@ -1,0 +1,107 @@
+/* Color roles. Dark is the default; light mode is opt-in via [data-theme="light"] on <html> or any container. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Grounds and surfaces */
+  --bg-sunken: #0b0c0d;
+  --bg-base: #101112;
+  --surface-1: #18191b;
+  --surface-2: #1e1f22;
+  --surface-3: #26282b;
+  --surface-hover: #1c1d20;
+  --surface-active: #232427;
+
+  /* Hairlines — separation is drawn with 1px borders, never with heavy shadow */
+  --border-subtle: #1f2023;
+  --border-default: #2a2c30;
+  --border-strong: #3a3d43;
+
+  /* Ink */
+  --text-primary: #ededef;
+  --text-secondary: #8a8f98;
+  --text-tertiary: #5f636b;
+  --text-on-accent: #ffffff;
+  --text-disabled: #4a4d53;
+
+  /* Accent — primary actions and active states only, never a large field */
+  --accent: #5e6ad2;
+  --accent-hover: #6b76dc;
+  --accent-active: #4d58bd;
+  --accent-text: #8f98e8;
+  --accent-subtle: rgba(94, 106, 210, 0.14);
+  --accent-border: rgba(94, 106, 210, 0.38);
+
+  /* Semantic data colors — numeric values and deltas only */
+  --data-positive: #26a69a;
+  --data-positive-subtle: rgba(38, 166, 154, 0.14);
+  --data-negative: #ef5350;
+  --data-negative-subtle: rgba(239, 83, 80, 0.14);
+  --data-neutral: #8a8f98;
+  --data-neutral-subtle: rgba(138, 143, 152, 0.14);
+  --data-warning: #d6a12c;
+  --data-warning-subtle: rgba(214, 161, 44, 0.14);
+
+  /* Chart plotting */
+  --chart-grid: #212226;
+  --chart-axis: #5f636b;
+  --chart-series-1: #5e6ad2;
+  --chart-series-2: #26a69a;
+  --chart-series-3: #8a8f98;
+  --chart-area-accent: rgba(94, 106, 210, 0.16);
+  --chart-area-positive: rgba(38, 166, 154, 0.14);
+
+  --focus-ring: #7c86e2;
+  --overlay-scrim: rgba(6, 7, 8, 0.72);
+  --selection-bg: rgba(94, 106, 210, 0.32);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-sunken: #f5f6f7;
+  --bg-base: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #f7f8f9;
+  --surface-3: #eef0f2;
+  --surface-hover: #f5f6f8;
+  --surface-active: #edeff2;
+
+  --border-subtle: #ebedef;
+  --border-default: #dcdfe3;
+  --border-strong: #c2c7cd;
+
+  --text-primary: #16171a;
+  --text-secondary: #6a7079;
+  --text-tertiary: #8e949c;
+  --text-on-accent: #ffffff;
+  --text-disabled: #b3b8be;
+
+  --accent: #5e6ad2;
+  --accent-hover: #4f5ac4;
+  --accent-active: #434da8;
+  --accent-text: #4a55b8;
+  --accent-subtle: rgba(94, 106, 210, 0.1);
+  --accent-border: rgba(94, 106, 210, 0.32);
+
+  --data-positive: #089981;
+  --data-positive-subtle: rgba(8, 153, 129, 0.12);
+  --data-negative: #e0393e;
+  --data-negative-subtle: rgba(224, 57, 62, 0.1);
+  --data-neutral: #6a7079;
+  --data-neutral-subtle: rgba(106, 112, 121, 0.1);
+  --data-warning: #b07c10;
+  --data-warning-subtle: rgba(176, 124, 16, 0.12);
+
+  --chart-grid: #ebedef;
+  --chart-axis: #8e949c;
+  --chart-series-1: #5e6ad2;
+  --chart-series-2: #089981;
+  --chart-series-3: #9aa0a8;
+  --chart-area-accent: rgba(94, 106, 210, 0.12);
+  --chart-area-positive: rgba(8, 153, 129, 0.1);
+
+  --focus-ring: #5e6ad2;
+  --overlay-scrim: rgba(22, 23, 26, 0.32);
+  --selection-bg: rgba(94, 106, 210, 0.18);
+}
