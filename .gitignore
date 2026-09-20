@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# ad-hoc local test scripts (temp, never meant to be committed)
+__*.mjs
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "../../app-shell";
 import { Card, Badge, Button, Input, Select, Metric } from "@/components/ds";
@@ -169,11 +170,28 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             )}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           <Badge tone="accent">{SEGMENT_LABEL[client.segment] ?? client.segment}</Badge>
           <Badge tone={client.status === "active" ? "positive" : client.status === "paused" ? "warning" : "neutral"}>
             {client.status}
           </Badge>
+          <Link
+            href={`/clients/${id}/edit`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              height: "var(--control-height-sm)",
+              padding: "0 var(--space-3)",
+              border: "var(--border-width) solid var(--border-default)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-primary)",
+              fontSize: "var(--text-xs)",
+              fontWeight: "var(--weight-medium)",
+              textDecoration: "none",
+            }}
+          >
+            Modifica
+          </Link>
         </div>
       </div>
 

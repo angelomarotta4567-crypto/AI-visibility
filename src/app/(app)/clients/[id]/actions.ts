@@ -1,7 +1,41 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+
+const SEGMENTS = ["locale", "ecommerce", "b2b"] as const;
+const STATUSES = ["active", "paused", "archived"] as const;
+
+export async function updateClientAction(clientId: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const segment = String(formData.get("segment") ?? "");
+  const status = String(formData.get("status") ?? "");
+  const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  if (!name) throw new Error("Il nome del cliente è obbligatorio.");
+  if (!SEGMENTS.includes(segment as (typeof SEGMENTS)[number])) throw new Error("Segmento non valido.");
+  if (!STATUSES.includes(status as (typeof STATUSES)[number])) throw new Error("Stato non valido.");
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("clients")
+    .update({
+      name,
+      segment,
+      status,
+      website_url: websiteUrl || null,
+      notes: notes || null,
+    })
+    .eq("id", clientId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/");
+  revalidatePath(`/clients/${clientId}`);
+  redirect(`/clients/${clientId}`);
+}
 
 export async function addCompetitorAction(clientId: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
