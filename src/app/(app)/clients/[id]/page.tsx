@@ -179,6 +179,23 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             {client.status}
           </Badge>
           <Link
+            href={`/clients/${id}/report`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              height: "var(--control-height-sm)",
+              padding: "0 var(--space-3)",
+              border: "var(--border-width) solid var(--border-default)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-primary)",
+              fontSize: "var(--text-xs)",
+              fontWeight: "var(--weight-medium)",
+              textDecoration: "none",
+            }}
+          >
+            Vedi report
+          </Link>
+          <Link
             href={`/clients/${id}/edit`}
             style={{
               display: "inline-flex",
