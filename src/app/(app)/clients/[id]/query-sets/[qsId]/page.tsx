@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/app/(app)/app-shell";
 import { Card, Badge, Button, Input } from "@/components/ds";
 import { QueriesTable } from "./queries-table";
-import { addQueryAction, deleteQueryAction, activateQuerySetAction } from "./actions";
+import { addQueryAction, deleteQueryAction, activateQuerySetAction, generateQuerySuggestionsAction } from "./actions";
 
 const statusTone: Record<string, "positive" | "accent" | "neutral"> = {
   active: "positive",
@@ -32,6 +32,7 @@ export default async function QuerySetDetailPage({
   const addQuery = addQueryAction.bind(null, qsId, id);
   const deleteQuery = deleteQueryAction.bind(null, qsId, id);
   const activateQuerySet = activateQuerySetAction.bind(null, qsId, id);
+  const generateSuggestions = generateQuerySuggestionsAction.bind(null, qsId, id);
 
   return (
     <AppShell activeKey="clienti" userEmail={user?.email ?? null}>
@@ -59,7 +60,18 @@ export default async function QuerySetDetailPage({
         </div>
       </div>
 
-      <Card title="Query" kicker="Query realistiche per la Fase 2 — Misurazione" padding="none">
+      <Card
+        title="Query"
+        kicker="Query realistiche per la Fase 2 — Misurazione"
+        padding="none"
+        actions={
+          <form action={generateSuggestions}>
+            <Button type="submit" variant="secondary" size="sm" iconLeft="sparkles">
+              Genera suggerimenti
+            </Button>
+          </form>
+        }
+      >
         {queries && queries.length > 0 ? (
           <QueriesTable queries={queries} deleteAction={deleteQuery} />
         ) : (
