@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge, Button, DataTable } from "@/components/ds";
+import { LEVER_CATEGORY_LABEL } from "@/lib/status-labels";
 
 export type InterventionRow = {
   id: string;
@@ -48,7 +49,7 @@ export function InterventionsTable({
         {
           key: "lever_category",
           header: "Leva",
-          render: (r: InterventionRow) => r.lever_category ?? "—",
+          render: (r: InterventionRow) => (r.lever_category ? LEVER_CATEGORY_LABEL[r.lever_category] ?? r.lever_category : "—"),
         },
         {
           key: "status",

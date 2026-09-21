@@ -16,3 +16,13 @@ export const MEASUREMENT_CYCLE_STATUS_LABEL: Record<string, string> = {
   completed: "Completato",
   failed: "Fallito",
 };
+
+export const LEVER_CATEGORY_LABEL: Record<string, string> = {
+  technical_fix: "Correzione tecnica",
+  structured_data: "Dati strutturati",
+  nap_consistency: "Coerenza dati aziendali",
+  reviews: "Recensioni",
+  freshness: "Aggiornamento informazioni",
+  direct_answer_content: "Contenuti per risposta diretta",
+  external_authority: "Autorevolezza esterna",
+};
