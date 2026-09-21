@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { runMeasurementCycle } from "@/lib/engines/run-cycle";
+import { startMeasurementCycle, runMeasurementCycleChunk, type ChunkResult } from "@/lib/engines/run-cycle";
 
 export async function runMeasurementCycleAction(clientId: string, formData: FormData) {
   const querySetId = String(formData.get("query_set_id") ?? "");
@@ -13,8 +13,18 @@ export async function runMeasurementCycleAction(clientId: string, formData: Form
   if (!querySetId) throw new Error("Nessun set di query attivo per questo cliente.");
 
   const supabase = await createClient();
-  const summary = await runMeasurementCycle({ supabase, clientId, querySetId, cycleType });
+  const { cycleId } = await startMeasurementCycle({ supabase, clientId, querySetId, cycleType });
 
   revalidatePath(`/clients/${clientId}`);
-  redirect(`/clients/${clientId}/measurement-cycles/${summary.cycleId}`);
+  redirect(`/clients/${clientId}/measurement-cycles/${cycleId}`);
+}
+
+/** Chiamata ripetutamente dal client (vedi cycle-progress-runner.tsx) finché
+ * il ciclo non è completo -- ogni chiamata esegue solo un piccolo blocco di
+ * job, così nessuna singola invocazione rischia il timeout della piattaforma. */
+export async function processMeasurementCycleChunkAction(clientId: string, cycleId: string): Promise<ChunkResult> {
+  const supabase = await createClient();
+  const result = await runMeasurementCycleChunk({ supabase, cycleId });
+  if (result.done) revalidatePath(`/clients/${clientId}`);
+  return result;
 }

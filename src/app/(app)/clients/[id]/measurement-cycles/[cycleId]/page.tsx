@@ -4,6 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/app/(app)/app-shell";
 import { Card, Badge, Metric } from "@/components/ds";
 import { RunsTable, type RunRow } from "./runs-table";
+import { CycleProgressRunner } from "./cycle-progress-runner";
+
+// Ogni job (una chiamata a un motore) può richiedere fino a ~45s col retry;
+// processMeasurementCycleChunkAction esegue un job alla volta (vedi
+// run-cycle.ts), ma diamo comunque margine oltre il default della
+// piattaforma -- innocuo se il piano non lo consente, viene troncato.
+export const maxDuration = 120;
 
 const cycleTypeLabel: Record<string, string> = { baseline: "Baseline", verification: "Verifica" };
 const statusTone: Record<string, "positive" | "accent" | "negative" | "neutral"> = {
@@ -46,7 +53,7 @@ export default async function MeasurementCycleDetailPage({
       supabase.from("clients").select("id, name").eq("id", id).maybeSingle(),
       supabase
         .from("measurement_cycles")
-        .select("id, cycle_type, status, started_at, completed_at, query_sets(version)")
+        .select("id, cycle_type, status, started_at, completed_at, total_jobs, failed_jobs, query_sets(version)")
         .eq("id", cycleId)
         .eq("client_id", id)
         .maybeSingle(),
@@ -97,6 +104,15 @@ export default async function MeasurementCycleDetailPage({
           <Badge tone={statusTone[cycle.status] ?? "neutral"}>{cycle.status}</Badge>
         </div>
       </div>
+
+      {cycle.status === "running" ? (
+        <CycleProgressRunner
+          clientId={id}
+          cycleId={cycleId}
+          initialTotal={cycle.total_jobs}
+          initialProcessed={runRows.length + cycle.failed_jobs}
+        />
+      ) : null}
 
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(2, (engineStats?.length ?? 0) + 1)}, 1fr)`, gap: "var(--space-4)" }}>
         <Card>

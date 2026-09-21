@@ -2,25 +2,27 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getEngineAdapter } from "./registry";
 import { classifyMentions, type Subject } from "./classify";
-import { mapWithConcurrency } from "./concurrency";
 
 const RUNS_PER_QUERY = 3; // vincolo CLAUDE.md #1: mai trattare una singola esecuzione come dato stabile.
-// Measured directly against this Gemini key/tier: solo calls reliably finish
-// in ~10s, but 2+ concurrent grounded calls consistently stall past the 30s
-// timeout (looks like a per-second/concurrent-request cap on this tier).
-// Sequential is slower end-to-end but actually completes instead of losing
-// most of the runs.
-const CONCURRENCY = 1;
 
 // Osservato in produzione: un cycle è rimasto "running" per oltre un giorno
 // (nessuna raw_response salvata, nessun completed_at) -- sintomo di una
 // singola chiamata adapter che si blocca indefinitamente (nessun timeout su
-// fetch), che con CONCURRENCY=1 impalla l'intero ciclo finché Vercel non
-// uccide la function, senza mai raggiungere l'update finale dello status.
-// Non risolve il vincolo più ampio dei tempi totali su un set grande di query
-// (serve esecuzione a blocchi/riprendibile, task di martedì) ma impedisce che
-// un singolo motore lento blocchi tutto a tempo indefinito.
+// fetch), che blocca l'intero ciclo finché Vercel non uccide la function,
+// senza mai raggiungere l'update finale dello status.
 const ADAPTER_CALL_TIMEOUT_MS = 45_000;
+
+// Un ciclo grande (15 query x 3 motori x 3 run = 135 chiamate) supera
+// qualunque timeout di una singola invocazione serverless se eseguito tutto
+// insieme. Invece di un unico Server Action sincrono, il ciclo viene diviso
+// in blocchi piccoli: ogni chiamata a runMeasurementCycleChunk esegue al più
+// CHUNK_SIZE job e ritorna il progresso. Il chiamante (un componente client
+// che fa polling) richiama finché il ciclo non è completo. Il progresso è
+// ricostruito dallo stato del DB (righe già inserite + contatore fallimenti),
+// quindi riaprire un ciclo "running" dopo aver chiuso il browser lo riprende
+// automaticamente da dove si era fermato, invece di lasciarlo bloccato per
+// sempre.
+const CHUNK_SIZE = 1;
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
@@ -43,33 +45,137 @@ function hostnameOf(url: string | null): string | null {
   }
 }
 
-export type RunCycleParams = {
+type Job = { queryId: string; queryText: string; engineCode: string };
+
+async function executeJob(supabase: SupabaseClient, cycleId: string, subjects: Subject[], job: Job): Promise<void> {
+  const adapter = getEngineAdapter(job.engineCode)!;
+  const result = await withTimeout(
+    adapter.query(job.queryText),
+    ADAPTER_CALL_TIMEOUT_MS,
+    `${job.engineCode} query="${job.queryText}"`,
+  );
+  const mentions = classifyMentions(result, subjects);
+
+  const { data: run, error: runError } = await supabase
+    .from("measurement_runs")
+    .insert({
+      measurement_cycle_id: cycleId,
+      query_id: job.queryId,
+      engine_code: job.engineCode,
+      raw_response: {
+        text: result.responseText,
+        citations: result.citations,
+        ...(typeof result.raw === "object" ? result.raw : {}),
+      },
+    })
+    .select("id")
+    .single();
+  if (runError) throw new Error(runError.message);
+
+  const { error: mentionsError } = await supabase.from("measurement_run_mentions").insert(
+    mentions.map((m) => ({
+      measurement_run_id: run.id,
+      subject_type: m.subjectType,
+      competitor_id: m.competitorId,
+      prominence: m.prominence,
+      rank: m.rank,
+    })),
+  );
+  if (mentionsError) throw new Error(mentionsError.message);
+}
+
+export type StartCycleParams = {
   supabase: SupabaseClient;
   clientId: string;
   querySetId: string;
   cycleType: "baseline" | "verification";
 };
 
-export type RunCycleSummary = {
-  cycleId: string;
-  totalRuns: number;
+/** Crea il ciclo e ritorna subito il suo id -- l'esecuzione vera e propria
+ * avviene a blocchi via runMeasurementCycleChunk, chiamata ripetutamente dal
+ * client mentre l'utente guarda la pagina del ciclo. */
+export async function startMeasurementCycle({
+  supabase,
+  clientId,
+  querySetId,
+  cycleType,
+}: StartCycleParams): Promise<{ cycleId: string }> {
+  const { data: queries, error: queriesError } = await supabase
+    .from("queries")
+    .select("id")
+    .eq("query_set_id", querySetId)
+    .limit(1);
+  if (queriesError) throw new Error(queriesError.message);
+  if (!queries || queries.length === 0) throw new Error("Il set di query selezionato non contiene query.");
+
+  const { data: cycle, error: cycleError } = await supabase
+    .from("measurement_cycles")
+    .insert({
+      client_id: clientId,
+      query_set_id: querySetId,
+      cycle_type: cycleType,
+      status: "running",
+      started_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+  if (cycleError) throw new Error(cycleError.message);
+  if (!cycle) throw new Error("measurement_cycles insert returned no row.");
+
+  return { cycleId: cycle.id };
+}
+
+export type ChunkResult = {
+  done: boolean;
+  totalJobs: number;
+  processedJobs: number;
   successfulRuns: number;
   failedRuns: number;
   skippedEngines: string[];
 };
 
-export async function runMeasurementCycle({
+/** Esegue al più CHUNK_SIZE job del ciclo e ritorna il progresso aggiornato.
+ * Idempotente rispetto alla ripresa: la lista job è ricostruita in modo
+ * deterministico (stesso ordine ad ogni chiamata) e il punto di ripresa è
+ * "quante righe/fallimenti sono già registrati", non uno stato in memoria. */
+export async function runMeasurementCycleChunk({
   supabase,
-  clientId,
-  querySetId,
-  cycleType,
-}: RunCycleParams): Promise<RunCycleSummary> {
-  const [{ data: client }, { data: competitors }, { data: queries }, { data: engines }] = await Promise.all([
-    supabase.from("clients").select("name, website_url, aliases").eq("id", clientId).single(),
-    supabase.from("competitors").select("id, name, url, aliases").eq("client_id", clientId),
-    supabase.from("queries").select("id, text").eq("query_set_id", querySetId),
-    supabase.from("engines").select("code").eq("active", true),
-  ]);
+  cycleId,
+}: {
+  supabase: SupabaseClient;
+  cycleId: string;
+}): Promise<ChunkResult> {
+  const { data: cycle, error: cycleError } = await supabase
+    .from("measurement_cycles")
+    .select("id, client_id, query_set_id, status, total_jobs, failed_jobs")
+    .eq("id", cycleId)
+    .single();
+  if (cycleError) throw new Error(cycleError.message);
+  if (!cycle) throw new Error("Ciclo di misurazione non trovato.");
+
+  if (cycle.status === "completed" || cycle.status === "failed") {
+    const total = cycle.total_jobs ?? 0;
+    return {
+      done: true,
+      totalJobs: total,
+      processedJobs: total,
+      successfulRuns: total - cycle.failed_jobs,
+      failedRuns: cycle.failed_jobs,
+      skippedEngines: [],
+    };
+  }
+
+  const [{ data: client }, { data: competitors }, { data: queries }, { data: engines }, { count: successfulCount }] =
+    await Promise.all([
+      supabase.from("clients").select("name, website_url, aliases").eq("id", cycle.client_id).single(),
+      supabase.from("competitors").select("id, name, url, aliases").eq("client_id", cycle.client_id).order("id"),
+      supabase.from("queries").select("id, text").eq("query_set_id", cycle.query_set_id).order("id"),
+      supabase.from("engines").select("code").eq("active", true).order("code"),
+      supabase
+        .from("measurement_runs")
+        .select("id", { count: "exact", head: true })
+        .eq("measurement_cycle_id", cycleId),
+    ]);
 
   if (!client) throw new Error("Cliente non trovato.");
   if (!queries || queries.length === 0) throw new Error("Il set di query selezionato non contiene query.");
@@ -100,22 +206,7 @@ export async function runMeasurementCycle({
     })),
   ];
 
-  const { data: cycle, error: cycleError } = await supabase
-    .from("measurement_cycles")
-    .insert({
-      client_id: clientId,
-      query_set_id: querySetId,
-      cycle_type: cycleType,
-      status: "running",
-      started_at: new Date().toISOString(),
-    })
-    .select("id")
-    .single();
-  if (cycleError) throw new Error(cycleError.message);
-  if (!cycle) throw new Error("measurement_cycles insert returned no row.");
-  const cycleId: string = cycle.id;
-
-  const jobs = queries.flatMap((q) =>
+  const jobs: Job[] = queries.flatMap((q) =>
     availableEngines.flatMap((engineCode) =>
       Array.from({ length: RUNS_PER_QUERY }, () => ({
         queryId: q.id as string,
@@ -125,70 +216,59 @@ export async function runMeasurementCycle({
     ),
   );
 
-  async function executeJob(job: (typeof jobs)[number]) {
-    const adapter = getEngineAdapter(job.engineCode)!;
-    const result = await withTimeout(
-      adapter.query(job.queryText),
-      ADAPTER_CALL_TIMEOUT_MS,
-      `${job.engineCode} query="${job.queryText}"`,
-    );
-    const mentions = classifyMentions(result, subjects);
+  const totalJobs = jobs.length;
+  const successfulSoFar = successfulCount ?? 0;
+  const processedSoFar = successfulSoFar + cycle.failed_jobs;
 
-    const { data: run, error: runError } = await supabase
-      .from("measurement_runs")
-      .insert({
-        measurement_cycle_id: cycleId,
-        query_id: job.queryId,
-        engine_code: job.engineCode,
-        raw_response: {
-          text: result.responseText,
-          citations: result.citations,
-          ...(typeof result.raw === "object" ? result.raw : {}),
-        },
-      })
-      .select("id")
-      .single();
-    if (runError) throw new Error(runError.message);
-
-    const { error: mentionsError } = await supabase.from("measurement_run_mentions").insert(
-      mentions.map((m) => ({
-        measurement_run_id: run.id,
-        subject_type: m.subjectType,
-        competitor_id: m.competitorId,
-        prominence: m.prominence,
-        rank: m.rank,
-      })),
-    );
-    if (mentionsError) throw new Error(mentionsError.message);
+  if (cycle.total_jobs == null) {
+    await supabase.from("measurement_cycles").update({ total_jobs: totalJobs }).eq("id", cycleId);
   }
 
-  const outcomes = await mapWithConcurrency(jobs, CONCURRENCY, async (job) => {
-    // One retry: observed failures against Gemini are near-exclusively
-    // transient (timeout / 503 high-demand), not deterministic errors, so a
-    // single retry recovers most of them instead of losing the run entirely.
+  const chunkJobs = jobs.slice(processedSoFar, processedSoFar + CHUNK_SIZE);
+
+  let chunkFailures = 0;
+  for (const job of chunkJobs) {
+    let ok = false;
+    // Un retry: i fallimenti osservati contro Gemini sono quasi tutti
+    // transitori (timeout / 503 alta domanda), non errori deterministici.
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        await executeJob(job);
-        return { ok: true as const };
+        await executeJob(supabase, cycleId, subjects, job);
+        ok = true;
+        break;
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         console.error(`[measurement] ${job.engineCode} query=${job.queryId} attempt ${attempt} failed: ${message}`);
-        if (attempt === 2) return { ok: false as const, error: message };
       }
     }
-    return { ok: false as const, error: "unreachable" };
-  });
+    if (!ok) chunkFailures++;
+  }
 
-  const successfulRuns = outcomes.filter((o) => o.ok).length;
-  const failedRuns = outcomes.length - successfulRuns;
+  const newFailedTotal = cycle.failed_jobs + chunkFailures;
+  if (chunkFailures > 0) {
+    await supabase.from("measurement_cycles").update({ failed_jobs: newFailedTotal }).eq("id", cycleId);
+  }
 
-  await supabase
-    .from("measurement_cycles")
-    .update({
-      status: successfulRuns > 0 ? "completed" : "failed",
-      completed_at: new Date().toISOString(),
-    })
-    .eq("id", cycleId);
+  const newProcessedSoFar = processedSoFar + chunkJobs.length;
+  const done = newProcessedSoFar >= totalJobs;
+  const newSuccessfulTotal = successfulSoFar + (chunkJobs.length - chunkFailures);
 
-  return { cycleId, totalRuns: outcomes.length, successfulRuns, failedRuns, skippedEngines };
+  if (done) {
+    await supabase
+      .from("measurement_cycles")
+      .update({
+        status: newSuccessfulTotal > 0 ? "completed" : "failed",
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", cycleId);
+  }
+
+  return {
+    done,
+    totalJobs,
+    processedJobs: newProcessedSoFar,
+    successfulRuns: newSuccessfulTotal,
+    failedRuns: newFailedTotal,
+    skippedEngines,
+  };
 }
