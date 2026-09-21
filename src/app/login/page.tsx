@@ -19,7 +19,10 @@ function LoginForm() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error" | "verifying">("idle");
+  const [code, setCode] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error" | "verifying" | "verifying-code" | "code-error">(
+    "idle",
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Some Supabase email-template/redirect configs hand back the session in
@@ -80,6 +83,23 @@ function LoginForm() {
     setStatus("sent");
   }
 
+  async function handleVerifyCode(e: FormEvent) {
+    e.preventDefault();
+    setStatus("verifying-code");
+    setErrorMessage(null);
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({ email, token: code.trim(), type: "email" });
+
+    if (error) {
+      setStatus("code-error");
+      setErrorMessage(error.message);
+      return;
+    }
+    router.push("/");
+    router.refresh();
+  }
+
   return (
     <div
       style={{
@@ -120,11 +140,30 @@ function LoginForm() {
             <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-base)", margin: 0 }}>
               Accesso in corso…
             </p>
-          ) : status === "sent" ? (
-            <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-base)", margin: 0 }}>
-              Ti abbiamo inviato un link di accesso a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>.
-              Aprilo da questo dispositivo per entrare.
-            </p>
+          ) : status === "sent" || status === "verifying-code" || status === "code-error" ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-base)", margin: 0 }}>
+                Ti abbiamo inviato un&rsquo;email a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>.
+                Clicca il link, oppure inserisci qui sotto il codice numerico contenuto nella stessa email (più
+                affidabile se il link non funziona).
+              </p>
+              <form onSubmit={handleVerifyCode} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+                <Input
+                  label="Codice di accesso"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  placeholder="123456"
+                  value={code}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
+                  hint={status === "code-error" ? errorMessage ?? undefined : undefined}
+                  invalid={status === "code-error"}
+                />
+                <Button type="submit" variant="primary" fullWidth disabled={status === "verifying-code"}>
+                  {status === "verifying-code" ? "Verifica in corso…" : "Verifica codice"}
+                </Button>
+              </form>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
               <Input
