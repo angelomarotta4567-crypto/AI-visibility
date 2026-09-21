@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, Input, Button, Badge } from "@/components/ds";
+import { sendLoginCodeAction } from "./actions";
 
 export default function LoginPage() {
   return (
@@ -63,21 +64,11 @@ function LoginForm() {
     setStatus("sending");
     setErrorMessage(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
-        // Invite-only: signInWithOtp would otherwise silently create a new
-        // account for any email typed here, bypassing the "only invited
-        // team members have a profiles row" access boundary.
-        shouldCreateUser: false,
-      },
-    });
+    const result = await sendLoginCodeAction(email);
 
-    if (error) {
+    if (!result.ok) {
       setStatus("error");
-      setErrorMessage(error.message);
+      setErrorMessage(result.error);
       return;
     }
     setStatus("sent");
@@ -143,9 +134,8 @@ function LoginForm() {
           ) : status === "sent" || status === "verifying-code" || status === "code-error" ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
               <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-base)", margin: 0 }}>
-                Ti abbiamo inviato un&rsquo;email a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>.
-                Clicca il link, oppure inserisci qui sotto il codice numerico contenuto nella stessa email (più
-                affidabile se il link non funziona).
+                Ti abbiamo inviato un&rsquo;email a <strong style={{ color: "var(--text-primary)" }}>{email}</strong> con
+                un codice di accesso. Inseriscilo qui sotto.
               </p>
               <form onSubmit={handleVerifyCode} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
                 <Input
@@ -173,11 +163,11 @@ function LoginForm() {
                 placeholder="nome@azienda.it"
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                hint={status === "error" ? errorMessage ?? undefined : "Ricevi un link di accesso via email, nessuna password."}
+                hint={status === "error" ? errorMessage ?? undefined : "Ricevi un codice di accesso via email, nessuna password."}
                 invalid={status === "error"}
               />
               <Button type="submit" variant="primary" fullWidth disabled={status === "sending"}>
-                {status === "sending" ? "Invio in corso…" : "Invia link di accesso"}
+                {status === "sending" ? "Invio in corso…" : "Invia codice di accesso"}
               </Button>
             </form>
           )}
