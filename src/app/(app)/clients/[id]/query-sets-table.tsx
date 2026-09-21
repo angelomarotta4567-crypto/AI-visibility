@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Badge, DataTable } from "@/components/ds";
+import { QUERY_SET_STATUS_LABEL } from "@/lib/status-labels";
 
 type QuerySet = {
   id: string;
@@ -27,7 +28,9 @@ export function ClientQuerySetsTable({ clientId, querySets }: { clientId: string
         {
           key: "status",
           header: "Stato",
-          render: (qs: QuerySet) => <Badge tone={statusTone[qs.status] ?? "neutral"}>{qs.status}</Badge>,
+          render: (qs: QuerySet) => (
+            <Badge tone={statusTone[qs.status] ?? "neutral"}>{QUERY_SET_STATUS_LABEL[qs.status] ?? qs.status}</Badge>
+          ),
         },
         {
           key: "queries",

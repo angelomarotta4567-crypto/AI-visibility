@@ -5,6 +5,7 @@ import { AppShell } from "@/app/(app)/app-shell";
 import { Card, Badge, Button, Input } from "@/components/ds";
 import { QueriesTable } from "./queries-table";
 import { addQueryAction, deleteQueryAction, activateQuerySetAction, generateQuerySuggestionsAction } from "./actions";
+import { QUERY_SET_STATUS_LABEL } from "@/lib/status-labels";
 
 const statusTone: Record<string, "positive" | "accent" | "neutral"> = {
   active: "positive",
@@ -48,7 +49,9 @@ export default async function QuerySetDetailPage({
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-            <Badge tone={statusTone[querySet.status] ?? "neutral"}>{querySet.status}</Badge>
+            <Badge tone={statusTone[querySet.status] ?? "neutral"}>
+              {QUERY_SET_STATUS_LABEL[querySet.status] ?? querySet.status}
+            </Badge>
             {querySet.status !== "active" ? (
               <form action={activateQuerySet}>
                 <Button type="submit" variant="primary" size="sm" iconLeft="check">

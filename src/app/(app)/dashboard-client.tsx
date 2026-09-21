@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, Badge, Button, DataTable } from "@/components/ds";
 import { AppShell } from "./app-shell";
 import { SEGMENT_LABEL } from "@/lib/segments";
+import { CLIENT_STATUS_LABEL } from "@/lib/status-labels";
 
 export type ClientRow = {
   id: string;
@@ -48,7 +49,7 @@ export function DashboardClient({ clients, userEmail }: { clients: ClientRow[]; 
                 header: "Stato",
                 render: (r: ClientRow) => (
                   <Badge tone={r.status === "active" ? "positive" : r.status === "paused" ? "warning" : "neutral"}>
-                    {r.status}
+                    {CLIENT_STATUS_LABEL[r.status] ?? r.status}
                   </Badge>
                 ),
               },

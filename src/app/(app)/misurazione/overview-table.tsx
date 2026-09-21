@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Badge, DataTable } from "@/components/ds";
 import { SEGMENT_LABEL } from "@/lib/segments";
+import { MEASUREMENT_CYCLE_STATUS_LABEL } from "@/lib/status-labels";
 
 export type MisurazioneRow = {
   clientId: string;
@@ -44,7 +45,12 @@ export function MisurazioneOverviewTable({ rows }: { rows: MisurazioneRow[] }) {
         {
           key: "status",
           header: "Stato",
-          render: (r: MisurazioneRow) => (r.status ? <Badge tone={statusTone[r.status] ?? "neutral"}>{r.status}</Badge> : "—"),
+          render: (r: MisurazioneRow) =>
+            r.status ? (
+              <Badge tone={statusTone[r.status] ?? "neutral"}>{MEASUREMENT_CYCLE_STATUS_LABEL[r.status] ?? r.status}</Badge>
+            ) : (
+              "—"
+            ),
         },
         {
           key: "citationRate",

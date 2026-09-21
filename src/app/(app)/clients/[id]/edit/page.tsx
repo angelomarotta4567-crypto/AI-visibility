@@ -47,9 +47,9 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
             label="Stato"
             defaultValue={client.status}
             options={[
-              { value: "active", label: "Active" },
-              { value: "paused", label: "Paused" },
-              { value: "archived", label: "Archived" },
+              { value: "active", label: "Attivo" },
+              { value: "paused", label: "In pausa" },
+              { value: "archived", label: "Archiviato" },
             ]}
           />
 

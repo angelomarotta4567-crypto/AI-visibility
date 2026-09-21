@@ -15,6 +15,7 @@ import { createVerificationReportAction } from "./verification-actions";
 import { suggestInterventions } from "@/lib/interventions/suggest";
 import { recommendNextCycle } from "@/lib/verification/recommend";
 import { SEGMENT_LABEL } from "@/lib/segments";
+import { CLIENT_STATUS_LABEL } from "@/lib/status-labels";
 
 const severityTone: Record<string, "negative" | "warning" | "neutral"> = {
   bloccante: "negative",
@@ -176,7 +177,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           <Badge tone="accent">{SEGMENT_LABEL[client.segment] ?? client.segment}</Badge>
           <Badge tone={client.status === "active" ? "positive" : client.status === "paused" ? "warning" : "neutral"}>
-            {client.status}
+            {CLIENT_STATUS_LABEL[client.status] ?? client.status}
           </Badge>
           <Link
             href={`/clients/${id}/report`}
@@ -238,7 +239,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       >
         {latestDiagnosis ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-            <Metric label="Recoverability score" value={String(latestDiagnosis.recoverability_score)} unit="/100" />
+            <Metric label="Punteggio di recuperabilità" value={String(latestDiagnosis.recoverability_score)} unit="/100" />
             {findings.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
                 {findings.map((f, i) => (

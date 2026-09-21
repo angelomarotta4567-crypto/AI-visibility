@@ -5,6 +5,7 @@ import { AppShell } from "@/app/(app)/app-shell";
 import { Card, Badge, Metric } from "@/components/ds";
 import { RunsTable, type RunRow } from "./runs-table";
 import { CycleProgressRunner } from "./cycle-progress-runner";
+import { MEASUREMENT_CYCLE_STATUS_LABEL } from "@/lib/status-labels";
 
 // Ogni job (una chiamata a un motore) può richiedere fino a ~45s col retry;
 // processMeasurementCycleChunkAction esegue un job alla volta (vedi
@@ -101,7 +102,9 @@ export default async function MeasurementCycleDetailPage({
               {cycle.completed_at ? ` · completato il ${new Date(cycle.completed_at).toLocaleString("it-IT")}` : ""}
             </p>
           </div>
-          <Badge tone={statusTone[cycle.status] ?? "neutral"}>{cycle.status}</Badge>
+          <Badge tone={statusTone[cycle.status] ?? "neutral"}>
+            {MEASUREMENT_CYCLE_STATUS_LABEL[cycle.status] ?? cycle.status}
+          </Badge>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Badge, DataTable } from "@/components/ds";
+import { MEASUREMENT_CYCLE_STATUS_LABEL } from "@/lib/status-labels";
 
 type Cycle = {
   id: string;
@@ -36,7 +37,9 @@ export function MeasurementCyclesTable({ clientId, cycles }: { clientId: string;
         {
           key: "status",
           header: "Stato",
-          render: (c: Cycle) => <Badge tone={statusTone[c.status] ?? "neutral"}>{c.status}</Badge>,
+          render: (c: Cycle) => (
+            <Badge tone={statusTone[c.status] ?? "neutral"}>{MEASUREMENT_CYCLE_STATUS_LABEL[c.status] ?? c.status}</Badge>
+          ),
         },
         {
           key: "started_at",
