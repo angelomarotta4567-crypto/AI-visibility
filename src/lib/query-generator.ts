@@ -14,15 +14,15 @@ export type QueryGeneratorInput = {
 function localeTemplates(category: string, cityClause: string, name: string): string[] {
   return [
     `miglior ${category}${cityClause}`,
-    `${category} consigliat${category.endsWith("a") ? "a" : "o"}${cityClause}`,
+    `quale ${category} scegliere${cityClause}`,
     `dove trovare ${category}${cityClause}`,
     `${category}${cityClause} recensioni`,
-    `${category} economic${category.endsWith("a") ? "a" : "o"}${cityClause}`,
+    `prezzi ${category}${cityClause}`,
     `${name} recensioni`,
     `${name} orari apertura`,
     `alternative a ${name}${cityClause}`,
     `${category} vicino a me${cityClause}`,
-    `${category} aperto oggi${cityClause}`,
+    `orario di apertura ${category}${cityClause}`,
     `${category} di qualità${cityClause}`,
     `${name} indirizzo e contatti`,
   ];
@@ -32,7 +32,7 @@ function ecommerceTemplates(category: string, name: string): string[] {
   return [
     `miglior negozio online per ${category}`,
     `dove comprare ${category} online`,
-    `${category} economic${category.endsWith("a") ? "a" : "o"} online`,
+    `prezzi ${category} online`,
     `recensioni ${name}`,
     `${name} è affidabile`,
     `confronto prezzi ${category}`,
