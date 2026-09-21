@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, ProgressBar, Badge } from "@/components/ds";
 import { processMeasurementCycleChunkAction } from "../../measurement-actions";
@@ -25,11 +25,15 @@ export function CycleProgressRunner({
   const [processed, setProcessed] = useState(initialProcessed);
   const [skippedEngines, setSkippedEngines] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const startedRef = useRef(false);
 
+  // Niente guardia "già partito" via ref: sotto React Strict Mode (dev) React
+  // monta/pulisce/rimonta l'effetto una volta per aiutare a scovare bug come
+  // questo. Una guardia persistente bloccherebbe il SECONDO montaggio (quello
+  // che sopravvive) mentre il primo, già annullato, si limita a consumare in
+  // silenzio un blocco senza mai aggiornare lo stato -- il ciclo appare
+  // fermo per sempre nella UI pur avanzando nel DB. Ogni istanza dell'effetto
+  // gestisce la propria cancellazione tramite la chiusura locale.
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
     let cancelled = false;
 
     async function loop() {
