@@ -46,7 +46,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   ] = await Promise.all([
     supabase.auth.getUser().then((r) => ({ data: r.data.user })),
     supabase.from("clients").select("*").eq("id", id).maybeSingle(),
-    supabase.from("competitors").select("id, name, url").eq("client_id", id).order("created_at"),
+    supabase.from("competitors").select("id, name, url, aliases").eq("client_id", id).order("created_at"),
     supabase
       .from("query_sets")
       .select("id, version, status, created_at, queries(count)")
@@ -168,6 +168,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             ) : (
               "Nessun sito web indicato"
             )}
+            {client.city || client.category ? (
+              <span> · {[client.category, client.city].filter(Boolean).join(", ")}</span>
+            ) : null}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
@@ -272,6 +275,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             >
               <Input name="name" placeholder="Nome competitor" required style={{ flex: 1 }} />
               <Input name="url" placeholder="https://..." type="url" style={{ flex: 1 }} />
+              <Input name="aliases" placeholder="Alias (separati da virgola)" style={{ flex: 1 }} />
               <Button type="submit" variant="secondary" iconLeft="plus">
                 Aggiungi
               </Button>

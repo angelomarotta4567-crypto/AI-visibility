@@ -2,7 +2,7 @@
 
 import { Button, DataTable } from "@/components/ds";
 
-type Competitor = { id: string; name: string; url: string | null };
+type Competitor = { id: string; name: string; url: string | null; aliases?: string[] | null };
 
 export function CompetitorsTable({
   competitors,
@@ -15,6 +15,16 @@ export function CompetitorsTable({
     <DataTable
       columns={[
         { key: "name", header: "Nome" },
+        {
+          key: "aliases",
+          header: "Alias",
+          render: (c: Competitor) =>
+            c.aliases && c.aliases.length > 0 ? (
+              <span style={{ color: "var(--text-secondary)" }}>{c.aliases.join(", ")}</span>
+            ) : (
+              "—"
+            ),
+        },
         {
           key: "url",
           header: "Sito",

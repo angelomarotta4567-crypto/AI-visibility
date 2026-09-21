@@ -55,6 +55,18 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
 
           <Input name="website_url" label="Sito web" type="url" defaultValue={client.website_url ?? ""} placeholder="https://..." />
 
+          <Input name="city" label="Città" defaultValue={client.city ?? ""} placeholder="Bologna" />
+
+          <Input name="category" label="Categoria" defaultValue={client.category ?? ""} placeholder="Ristorante, idraulico, agenzia immobiliare…" />
+
+          <Input
+            name="aliases"
+            label="Alias / nomi alternativi"
+            defaultValue={(client.aliases ?? []).join(", ")}
+            placeholder="Nome commerciale, abbreviazione, vecchia ragione sociale…"
+            hint="Separati da virgola. Usati per non perdere citazioni quando il motore AI usa un nome diverso da quello ufficiale."
+          />
+
           <label style={{ display: "block" }}>
             <span
               style={{

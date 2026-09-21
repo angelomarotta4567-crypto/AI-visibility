@@ -14,11 +14,19 @@ export type Mention = {
   rank: number | null;
 };
 
+// Case- e accent-insensitive: senza questo, "Perche'" nel testo del motore
+// non trova match con un nome cliente scritto "Perché" nei dati anagrafici
+// (e viceversa), producendo falsi "assente".
+function normalize(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
 function earliestIndex(text: string, terms: string[]): number {
+  const normalizedText = normalize(text);
   let best = -1;
   for (const term of terms) {
     if (!term.trim()) continue;
-    const idx = text.toLowerCase().indexOf(term.toLowerCase());
+    const idx = normalizedText.indexOf(normalize(term));
     if (idx >= 0 && (best === -1 || idx < best)) best = idx;
   }
   return best;

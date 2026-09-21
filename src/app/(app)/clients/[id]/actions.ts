@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { parseAliases } from "@/lib/aliases";
 
 const SEGMENTS = ["locale", "ecommerce", "b2b"] as const;
 const STATUSES = ["active", "paused", "archived"] as const;
@@ -12,6 +13,9 @@ export async function updateClientAction(clientId: string, formData: FormData) {
   const segment = String(formData.get("segment") ?? "");
   const status = String(formData.get("status") ?? "");
   const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  const city = String(formData.get("city") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
+  const aliases = parseAliases(formData.get("aliases"));
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!name) throw new Error("Il nome del cliente è obbligatorio.");
@@ -26,6 +30,9 @@ export async function updateClientAction(clientId: string, formData: FormData) {
       segment,
       status,
       website_url: websiteUrl || null,
+      city: city || null,
+      category: category || null,
+      aliases,
       notes: notes || null,
     })
     .eq("id", clientId);
@@ -40,6 +47,7 @@ export async function updateClientAction(clientId: string, formData: FormData) {
 export async function addCompetitorAction(clientId: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const url = String(formData.get("url") ?? "").trim();
+  const aliases = parseAliases(formData.get("aliases"));
   if (!name) throw new Error("Il nome del competitor è obbligatorio.");
 
   const supabase = await createClient();
@@ -47,6 +55,7 @@ export async function addCompetitorAction(clientId: string, formData: FormData) 
     client_id: clientId,
     name,
     url: url || null,
+    aliases,
   });
   if (error) throw new Error(error.message);
 

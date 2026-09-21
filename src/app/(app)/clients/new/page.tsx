@@ -35,6 +35,17 @@ export default async function NewClientPage() {
 
           <Input name="website_url" label="Sito web" type="url" placeholder="https://..." />
 
+          <Input name="city" label="Città" placeholder="Bologna" />
+
+          <Input name="category" label="Categoria" placeholder="Ristorante, idraulico, agenzia immobiliare…" />
+
+          <Input
+            name="aliases"
+            label="Alias / nomi alternativi"
+            placeholder="Nome commerciale, abbreviazione, vecchia ragione sociale…"
+            hint="Separati da virgola. Usati per non perdere citazioni quando il motore AI usa un nome diverso da quello ufficiale."
+          />
+
           <label style={{ display: "block" }}>
             <span
               style={{

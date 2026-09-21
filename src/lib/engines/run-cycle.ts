@@ -43,8 +43,8 @@ export async function runMeasurementCycle({
   cycleType,
 }: RunCycleParams): Promise<RunCycleSummary> {
   const [{ data: client }, { data: competitors }, { data: queries }, { data: engines }] = await Promise.all([
-    supabase.from("clients").select("name, website_url").eq("id", clientId).single(),
-    supabase.from("competitors").select("id, name, url").eq("client_id", clientId),
+    supabase.from("clients").select("name, website_url, aliases").eq("id", clientId).single(),
+    supabase.from("competitors").select("id, name, url, aliases").eq("client_id", clientId),
     supabase.from("queries").select("id, text").eq("query_set_id", querySetId),
     supabase.from("engines").select("code").eq("active", true),
   ]);
@@ -67,13 +67,13 @@ export async function runMeasurementCycle({
     {
       subjectType: "client",
       competitorId: null,
-      nameTerms: [client.name],
+      nameTerms: [client.name, ...((client.aliases as string[] | null) ?? [])],
       hostnames: [hostnameOf(client.website_url)].filter((h): h is string => Boolean(h)),
     },
     ...(competitors ?? []).map((c) => ({
       subjectType: "competitor" as const,
       competitorId: c.id as string,
-      nameTerms: [c.name as string],
+      nameTerms: [c.name as string, ...((c.aliases as string[] | null) ?? [])],
       hostnames: [hostnameOf(c.url as string | null)].filter((h): h is string => Boolean(h)),
     })),
   ];
