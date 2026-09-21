@@ -12,6 +12,28 @@ const RUNS_PER_QUERY = 3; // vincolo CLAUDE.md #1: mai trattare una singola esec
 // most of the runs.
 const CONCURRENCY = 1;
 
+// Osservato in produzione: un cycle è rimasto "running" per oltre un giorno
+// (nessuna raw_response salvata, nessun completed_at) -- sintomo di una
+// singola chiamata adapter che si blocca indefinitamente (nessun timeout su
+// fetch), che con CONCURRENCY=1 impalla l'intero ciclo finché Vercel non
+// uccide la function, senza mai raggiungere l'update finale dello status.
+// Non risolve il vincolo più ampio dei tempi totali su un set grande di query
+// (serve esecuzione a blocchi/riprendibile, task di martedì) ma impedisce che
+// un singolo motore lento blocchi tutto a tempo indefinito.
+const ADAPTER_CALL_TIMEOUT_MS = 45_000;
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Timeout dopo ${ms / 1000}s: ${label}`)), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timer!);
+  }
+}
+
 function hostnameOf(url: string | null): string | null {
   if (!url) return null;
   try {
@@ -105,7 +127,11 @@ export async function runMeasurementCycle({
 
   async function executeJob(job: (typeof jobs)[number]) {
     const adapter = getEngineAdapter(job.engineCode)!;
-    const result = await adapter.query(job.queryText);
+    const result = await withTimeout(
+      adapter.query(job.queryText),
+      ADAPTER_CALL_TIMEOUT_MS,
+      `${job.engineCode} query="${job.queryText}"`,
+    );
     const mentions = classifyMentions(result, subjects);
 
     const { data: run, error: runError } = await supabase
