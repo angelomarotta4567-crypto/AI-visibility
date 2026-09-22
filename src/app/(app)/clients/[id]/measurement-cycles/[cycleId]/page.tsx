@@ -121,7 +121,7 @@ export default async function MeasurementCycleDetailPage({
         <Card>
           <Metric
             label="Quota di voce AI"
-            value={shareOfVoice?.share_of_voice_ai != null ? shareOfVoice.share_of_voice_ai.toFixed(2) : "—"}
+            value={shareOfVoice?.share_of_voice_ai != null ? `${Math.round(shareOfVoice.share_of_voice_ai * 100)}%` : "—"}
             note={
               shareOfVoice
                 ? `${shareOfVoice.client_cited} citazioni cliente vs ${shareOfVoice.competitor_cited} competitor`
@@ -133,7 +133,7 @@ export default async function MeasurementCycleDetailPage({
           <Card key={s.engine_code}>
             <Metric
               label={`Tasso di citazione · ${ENGINE_LABEL[s.engine_code] ?? s.engine_code}`}
-              value={s.citation_rate != null ? s.citation_rate.toFixed(2) : "—"}
+              value={s.citation_rate != null ? `${Math.round(s.citation_rate * 100)}%` : "—"}
               note={`${s.client_citations}/${s.client_runs} esecuzioni con citazione`}
             />
           </Card>

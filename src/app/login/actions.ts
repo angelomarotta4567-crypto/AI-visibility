@@ -15,12 +15,16 @@ export async function sendLoginCodeAction(
   const trimmedEmail = email.trim().toLowerCase();
   if (!trimmedEmail) return { ok: false, error: "Email obbligatoria." };
 
+  const GENERIC_ERROR = "Invio del codice non riuscito. Riprova tra qualche istante.";
   const supabase = createServiceClient();
 
   // Invite-only: solo chi ha già un profilo (è stato invitato) può ricevere
   // un codice -- stessa regola che aveva shouldCreateUser: false prima.
   const { data: usersData, error: listError } = await supabase.auth.admin.listUsers();
-  if (listError) return { ok: false, error: listError.message };
+  if (listError) {
+    console.error("[login] listUsers fallito:", listError.message);
+    return { ok: false, error: GENERIC_ERROR };
+  }
   const user = usersData.users.find((u) => u.email?.toLowerCase() === trimmedEmail);
   if (!user) return { ok: false, error: "Nessun utente invitato con questa email." };
 
@@ -28,12 +32,18 @@ export async function sendLoginCodeAction(
     type: "magiclink",
     email: trimmedEmail,
   });
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[login] generateLink fallito:", error.message);
+    return { ok: false, error: GENERIC_ERROR };
+  }
 
   const code = data.properties.email_otp;
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) return { ok: false, error: "RESEND_API_KEY non configurata." };
+  if (!resendApiKey) {
+    console.error("[login] RESEND_API_KEY non configurata.");
+    return { ok: false, error: GENERIC_ERROR };
+  }
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -51,7 +61,8 @@ export async function sendLoginCodeAction(
 
   if (!res.ok) {
     const body = await res.text();
-    return { ok: false, error: `Invio email fallito: ${body.slice(0, 300)}` };
+    console.error(`[login] invio email Resend fallito (${res.status}):`, body.slice(0, 500));
+    return { ok: false, error: GENERIC_ERROR };
   }
 
   return { ok: true };

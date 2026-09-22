@@ -50,8 +50,9 @@ function LoginForm() {
     const supabase = createClient();
     supabase.auth.setSession({ access_token, refresh_token }).then(({ error }) => {
       if (error) {
+        console.error("[login] setSession fallito:", error.message);
         setStatus("error");
-        setErrorMessage(error.message);
+        setErrorMessage("Il link di accesso non è valido o è scaduto. Richiedi un nuovo codice.");
         return;
       }
       router.replace("/");
@@ -83,8 +84,9 @@ function LoginForm() {
     const { error } = await supabase.auth.verifyOtp({ email, token: code.trim(), type: "email" });
 
     if (error) {
+      console.error("[login] verifyOtp fallito:", error.message);
       setStatus("code-error");
-      setErrorMessage(error.message);
+      setErrorMessage("Codice non valido o scaduto. Controlla di averlo copiato correttamente, oppure richiedine uno nuovo.");
       return;
     }
     router.push("/");

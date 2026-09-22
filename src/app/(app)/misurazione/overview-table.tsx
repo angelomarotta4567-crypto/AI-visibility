@@ -56,13 +56,13 @@ export function MisurazioneOverviewTable({ rows }: { rows: MisurazioneRow[] }) {
           key: "citationRate",
           header: "Tasso di citazione",
           numeric: true,
-          render: (r: MisurazioneRow) => (r.citationRate === null ? "—" : r.citationRate.toFixed(2)),
+          render: (r: MisurazioneRow) => (r.citationRate === null ? "—" : `${Math.round(r.citationRate * 100)}%`),
         },
         {
           key: "shareOfVoice",
           header: "Quota di voce AI",
           numeric: true,
-          render: (r: MisurazioneRow) => (r.shareOfVoice === null ? "—" : r.shareOfVoice.toFixed(2)),
+          render: (r: MisurazioneRow) => (r.shareOfVoice === null ? "—" : `${Math.round(r.shareOfVoice * 100)}%`),
         },
         {
           key: "startedAt",

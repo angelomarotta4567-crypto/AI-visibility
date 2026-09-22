@@ -37,7 +37,7 @@ export default async function InterventoOverviewPage() {
       <div>
         <h1>Intervento</h1>
         <p style={{ margin: 0, color: "var(--text-secondary)" }}>
-          Fase 3 — quali leve agire? Vista d&rsquo;insieme sugli interventi di ogni cliente.
+          Fase 3 — quali leve azionare? Vista d&rsquo;insieme sugli interventi di ogni cliente.
         </p>
       </div>
 

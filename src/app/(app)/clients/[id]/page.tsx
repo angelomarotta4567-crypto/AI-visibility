@@ -370,7 +370,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         )}
       </Card>
 
-      <Card title="Interventi" kicker="Fase 3 — quali leve agire?">
+      <Card title="Interventi" kicker="Fase 3 — quali leve azionare?">
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
           {suggestions.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
@@ -439,14 +439,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "var(--space-4)" }}>
                 <Metric
                   label="Tasso di citazione (ultima verifica)"
-                  value={verificationRate === null ? "—" : verificationRate.toFixed(2)}
+                  value={verificationRate === null ? "—" : `${Math.round(verificationRate * 100)}%`}
                   delta={citationRateDeltaPct === null ? undefined : citationRateDeltaPct}
                   deltaUnit="pt"
                   note="vs baseline"
                 />
                 <Metric
                   label="Quota di voce AI (ultima verifica)"
-                  value={verificationSov === null ? "—" : verificationSov.toFixed(2)}
+                  value={verificationSov === null ? "—" : `${Math.round(verificationSov * 100)}%`}
                   delta={shareOfVoiceDeltaPct === null ? undefined : shareOfVoiceDeltaPct}
                   deltaUnit="pt"
                   note="vs baseline"

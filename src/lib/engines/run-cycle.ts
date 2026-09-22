@@ -120,7 +120,7 @@ export async function startMeasurementCycle({
     .select("id")
     .single();
   if (cycleError) throw new Error(cycleError.message);
-  if (!cycle) throw new Error("measurement_cycles insert returned no row.");
+  if (!cycle) throw new Error("Impossibile creare il ciclo di misurazione, riprova.");
 
   return { cycleId: cycle.id };
 }
@@ -188,7 +188,7 @@ export async function runMeasurementCycleChunk({
     else skippedEngines.push(e.code);
   }
   if (availableEngines.length === 0) {
-    throw new Error("Nessun motore configurato con un adapter attivo (vedi src/lib/engines/registry.ts).");
+    throw new Error("Nessun motore AI è configurato con una chiave API attiva su questo account.");
   }
 
   const subjects: Subject[] = [

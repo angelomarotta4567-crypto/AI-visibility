@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, ProgressBar, Badge } from "@/components/ds";
 import { processMeasurementCycleChunkAction } from "../../measurement-actions";
+import { ENGINE_LABEL } from "@/lib/status-labels";
 
 /** Guida un ciclo "running" attraverso i suoi blocchi finché non è completo
  * (vedi run-cycle.ts per il perché dell'esecuzione a blocchi). Riaprire
@@ -49,7 +50,13 @@ export function CycleProgressRunner({
             return;
           }
         } catch (err) {
-          if (!cancelled) setError(err instanceof Error ? err.message : String(err));
+          // Il dettaglio tecnico (spesso in inglese: errori API dei motori,
+          // nomi di variabili d'ambiente, nomi di tabelle) resta in console
+          // per il debug -- mai mostrato com'è all'utente in demo.
+          console.error("[misurazione] blocco fallito:", err);
+          if (!cancelled) {
+            setError("Si è verificato un problema imprevisto durante la misurazione. Ricarica la pagina per riprovare.");
+          }
           return;
         }
       }
@@ -73,7 +80,7 @@ export function CycleProgressRunner({
       <ProgressBar value={processed} max={total ?? Math.max(processed, 1)} label={`${processed} / ${total ?? "…"} esecuzioni`} />
       {skippedEngines.length > 0 ? (
         <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
-          Motori senza adapter configurato, esclusi: {skippedEngines.join(", ")}
+          Motori esclusi (non ancora attivati su questo account): {skippedEngines.map((e) => ENGINE_LABEL[e] ?? e).join(", ")}
         </p>
       ) : null}
     </Card>
