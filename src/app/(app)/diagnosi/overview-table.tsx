@@ -34,7 +34,7 @@ export function DiagnosiOverviewTable({ rows }: { rows: DiagnosiRow[] }) {
         },
         {
           key: "score",
-          header: "Recoverability score",
+          header: "Punteggio recuperabilità",
           numeric: true,
           render: (r: DiagnosiRow) =>
             r.score === null ? (

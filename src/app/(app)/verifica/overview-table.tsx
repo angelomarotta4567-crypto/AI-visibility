@@ -40,13 +40,13 @@ export function VerificaOverviewTable({ rows }: { rows: VerificaRow[] }) {
         },
         {
           key: "citationRateDelta",
-          header: "Δ Citation rate",
+          header: "Δ tasso di citazione",
           numeric: true,
           render: (r: VerificaRow) => (r.citationRateDeltaPct === null ? "—" : <Delta value={r.citationRateDeltaPct} digits={1} />),
         },
         {
           key: "shareOfVoiceDelta",
-          header: "Δ Share of voice",
+          header: "Δ quota di voce",
           numeric: true,
           render: (r: VerificaRow) => (r.shareOfVoiceDeltaPct === null ? "—" : <Delta value={r.shareOfVoiceDeltaPct} digits={1} />),
         },

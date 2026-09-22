@@ -26,3 +26,10 @@ export const LEVER_CATEGORY_LABEL: Record<string, string> = {
   direct_answer_content: "Contenuti per risposta diretta",
   external_authority: "Autorevolezza esterna",
 };
+
+export const ENGINE_LABEL: Record<string, string> = {
+  chatgpt: "ChatGPT",
+  gemini: "Gemini",
+  perplexity: "Perplexity",
+  copilot: "Copilot",
+};

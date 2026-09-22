@@ -5,7 +5,7 @@ import { AppShell } from "@/app/(app)/app-shell";
 import { Card, Badge, Metric } from "@/components/ds";
 import { RunsTable, type RunRow } from "./runs-table";
 import { CycleProgressRunner } from "./cycle-progress-runner";
-import { MEASUREMENT_CYCLE_STATUS_LABEL } from "@/lib/status-labels";
+import { MEASUREMENT_CYCLE_STATUS_LABEL, ENGINE_LABEL } from "@/lib/status-labels";
 
 // Ogni job (una chiamata a un motore) può richiedere fino a ~45s col retry;
 // processMeasurementCycleChunkAction esegue un job alla volta (vedi
@@ -120,7 +120,7 @@ export default async function MeasurementCycleDetailPage({
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(2, (engineStats?.length ?? 0) + 1)}, 1fr)`, gap: "var(--space-4)" }}>
         <Card>
           <Metric
-            label="Share of voice AI"
+            label="Quota di voce AI"
             value={shareOfVoice?.share_of_voice_ai != null ? shareOfVoice.share_of_voice_ai.toFixed(2) : "—"}
             note={
               shareOfVoice
@@ -132,7 +132,7 @@ export default async function MeasurementCycleDetailPage({
         {(engineStats ?? []).map((s) => (
           <Card key={s.engine_code}>
             <Metric
-              label={`Citation rate · ${s.engine_code}`}
+              label={`Tasso di citazione · ${ENGINE_LABEL[s.engine_code] ?? s.engine_code}`}
               value={s.citation_rate != null ? s.citation_rate.toFixed(2) : "—"}
               note={`${s.client_citations}/${s.client_runs} esecuzioni con citazione`}
             />

@@ -283,7 +283,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               <CompetitorsTable competitors={competitors} deleteAction={deleteCompetitor} />
             ) : (
               <p style={{ margin: 0, color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
-                Nessun competitor ancora — servono per calcolare lo share of voice AI.
+                Nessun competitor ancora — servono per calcolare la quota di voce AI.
               </p>
             )}
 
@@ -438,14 +438,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             <>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "var(--space-4)" }}>
                 <Metric
-                  label="Citation rate (ultima verifica)"
+                  label="Tasso di citazione (ultima verifica)"
                   value={verificationRate === null ? "—" : verificationRate.toFixed(2)}
                   delta={citationRateDeltaPct === null ? undefined : citationRateDeltaPct}
                   deltaUnit="pt"
                   note="vs baseline"
                 />
                 <Metric
-                  label="Share of voice AI (ultima verifica)"
+                  label="Quota di voce AI (ultima verifica)"
                   value={verificationSov === null ? "—" : verificationSov.toFixed(2)}
                   delta={shareOfVoiceDeltaPct === null ? undefined : shareOfVoiceDeltaPct}
                   deltaUnit="pt"

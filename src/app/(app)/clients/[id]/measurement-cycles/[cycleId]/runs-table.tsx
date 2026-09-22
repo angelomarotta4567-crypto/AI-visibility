@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge, DataTable } from "@/components/ds";
+import { ENGINE_LABEL } from "@/lib/status-labels";
 
 export type RunRow = {
   id: string;
@@ -30,10 +31,14 @@ export function RunsTable({ runs }: { runs: RunRow[] }) {
     <DataTable
       columns={[
         { key: "queryText", header: "Query" },
-        { key: "engineCode", header: "Motore" },
+        {
+          key: "engineCode",
+          header: "Motore",
+          render: (r: RunRow) => ENGINE_LABEL[r.engineCode] ?? r.engineCode,
+        },
         {
           key: "clientProminence",
-          header: "Prominence",
+          header: "Presenza",
           render: (r: RunRow) => (
             <Badge tone={prominenceTone[r.clientProminence]}>{prominenceLabel[r.clientProminence]}</Badge>
           ),

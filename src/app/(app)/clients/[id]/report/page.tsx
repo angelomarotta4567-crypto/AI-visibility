@@ -2,14 +2,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ds";
 import { SEGMENT_LABEL } from "@/lib/segments";
+import { ENGINE_LABEL } from "@/lib/status-labels";
 import { PrintButton } from "./print-button";
-
-const ENGINE_LABEL: Record<string, string> = {
-  chatgpt: "ChatGPT",
-  gemini: "Gemini",
-  perplexity: "Perplexity",
-  copilot: "Copilot",
-};
 
 const SEVERITY_LABEL: Record<string, string> = {
   bloccante: "Da correggere subito",
