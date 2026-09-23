@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, Badge, Button, DataTable } from "@/components/ds";
+import { Card, Badge, Button, DataTable, Dialog } from "@/components/ds";
 import { AppShell } from "./app-shell";
 import { SEGMENT_LABEL } from "@/lib/segments";
 import { CLIENT_STATUS_LABEL } from "@/lib/status-labels";
+import { deleteClientAction } from "./clients/actions";
+import { ClientAvatar } from "@/components/client-avatar";
 
 export type ClientRow = {
   id: string;
@@ -12,10 +15,30 @@ export type ClientRow = {
   segment: string;
   status: string;
   created_at: string;
+  logo_url: string | null;
 };
 
 export function DashboardClient({ clients, userEmail }: { clients: ClientRow[]; userEmail: string | null }) {
   const router = useRouter();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ClientRow | null>(null);
+
+  function askDelete(e: React.MouseEvent, client: ClientRow) {
+    e.stopPropagation();
+    setPendingDelete(client);
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setDeletingId(pendingDelete.id);
+    try {
+      await deleteClientAction(pendingDelete.id);
+      router.refresh();
+    } finally {
+      setDeletingId(null);
+      setPendingDelete(null);
+    }
+  }
 
   return (
     <AppShell activeKey="clienti" userEmail={userEmail}>
@@ -38,7 +61,16 @@ export function DashboardClient({ clients, userEmail }: { clients: ClientRow[]; 
         ) : (
           <DataTable
             columns={[
-              { key: "name", header: "Nome" },
+              {
+                key: "name",
+                header: "Nome",
+                render: (r: ClientRow) => (
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <ClientAvatar name={r.name} logoUrl={r.logo_url} />
+                    <span>{r.name}</span>
+                  </div>
+                ),
+              },
               {
                 key: "segment",
                 header: "Segmento",
@@ -58,12 +90,47 @@ export function DashboardClient({ clients, userEmail }: { clients: ClientRow[]; 
                 header: "Creato il",
                 render: (r: ClientRow) => new Date(r.created_at).toLocaleDateString("it-IT"),
               },
+              {
+                key: "actions",
+                header: "",
+                align: "right",
+                render: (r: ClientRow) => (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    iconLeft="trash-2"
+                    aria-label={`Elimina ${r.name}`}
+                    disabled={deletingId === r.id}
+                    onClick={(e: React.MouseEvent) => askDelete(e, r)}
+                  >
+                    {deletingId === r.id ? "Elimino…" : "Elimina"}
+                  </Button>
+                ),
+              },
             ]}
             rows={clients}
             onRowClick={(r: ClientRow) => router.push(`/clients/${r.id}`)}
           />
         )}
       </Card>
+      {pendingDelete ? (
+        <Dialog
+          title={`Eliminare "${pendingDelete.name}"?`}
+          description="Cancella anche tutta la sua diagnosi, le misurazioni, gli interventi e i report collegati. Non si può annullare."
+          onClose={() => setPendingDelete(null)}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setPendingDelete(null)}>
+                Annulla
+              </Button>
+              <Button variant="danger" onClick={confirmDelete} disabled={deletingId === pendingDelete.id}>
+                {deletingId === pendingDelete.id ? "Elimino…" : "Elimina definitivamente"}
+              </Button>
+            </>
+          }
+        />
+      ) : null}
     </AppShell>
   );
 }

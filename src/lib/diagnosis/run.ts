@@ -7,7 +7,7 @@ import type { DiagnosisResult, Finding, Severity } from "./types";
 // service's segments (locale / e-commerce / B2B).
 const RELEVANT_TYPES = ["LocalBusiness", "Organization", "Product", "FAQPage"];
 
-const PENALTY: Record<Severity, number> = {
+export const FINDING_PENALTY: Record<Severity, number> = {
   bloccante: 30,
   limitante: 15,
   opportunita: 5,
@@ -149,7 +149,7 @@ export async function runDiagnosis(websiteUrlInput: string): Promise<DiagnosisRe
 
   const score = Math.max(
     0,
-    100 - findings.reduce((sum, f) => sum + PENALTY[f.severity], 0),
+    100 - findings.reduce((sum, f) => sum + FINDING_PENALTY[f.severity], 0),
   );
 
   return { recoverability_score: score, findings };

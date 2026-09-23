@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, ProgressBar, Badge } from "@/components/ds";
+import { Card, CircularProgress, Badge } from "@/components/ds";
 import { processMeasurementCycleChunkAction } from "../../measurement-actions";
 import { ENGINE_LABEL } from "@/lib/status-labels";
 
@@ -77,7 +77,14 @@ export function CycleProgressRunner({
 
   return (
     <Card title="Misurazione in corso" kicker="Ogni query viene eseguita più volte per motore -- può richiedere diversi minuti">
-      <ProgressBar value={processed} max={total ?? Math.max(processed, 1)} label={`${processed} / ${total ?? "…"} esecuzioni`} />
+      <div style={{ display: "flex", justifyContent: "center", padding: "var(--space-2) 0" }}>
+        <CircularProgress
+          value={processed}
+          max={total ?? Math.max(processed, 1)}
+          size={112}
+          label={`${processed} / ${total ?? "…"} esecuzioni`}
+        />
+      </div>
       {skippedEngines.length > 0 ? (
         <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
           Motori esclusi (non ancora attivati su questo account): {skippedEngines.map((e) => ENGINE_LABEL[e] ?? e).join(", ")}

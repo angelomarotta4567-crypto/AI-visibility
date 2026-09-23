@@ -33,3 +33,15 @@ export const ENGINE_LABEL: Record<string, string> = {
   perplexity: "Perplexity",
   copilot: "Copilot",
 };
+
+export const SEVERITY_LABEL: Record<string, string> = {
+  bloccante: "Da correggere subito",
+  limitante: "Da migliorare",
+  opportunita: "Opportunità",
+};
+
+export const SEVERITY_TONE: Record<string, "negative" | "warning" | "neutral"> = {
+  bloccante: "negative",
+  limitante: "warning",
+  opportunita: "neutral",
+};

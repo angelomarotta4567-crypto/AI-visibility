@@ -13,6 +13,7 @@ export async function updateClientAction(clientId: string, formData: FormData) {
   const segment = String(formData.get("segment") ?? "");
   const status = String(formData.get("status") ?? "");
   const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  const logoUrl = String(formData.get("logo_url") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const aliases = parseAliases(formData.get("aliases"));
@@ -30,6 +31,7 @@ export async function updateClientAction(clientId: string, formData: FormData) {
       segment,
       status,
       website_url: websiteUrl || null,
+      logo_url: logoUrl || null,
       city: city || null,
       category: category || null,
       aliases,

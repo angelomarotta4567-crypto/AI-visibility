@@ -11,6 +11,7 @@ export async function createClientAction(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const segment = String(formData.get("segment") ?? "");
   const websiteUrl = String(formData.get("website_url") ?? "").trim();
+  const logoUrl = String(formData.get("logo_url") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const aliases = parseAliases(formData.get("aliases"));
@@ -32,6 +33,7 @@ export async function createClientAction(formData: FormData) {
       name,
       segment,
       website_url: websiteUrl || null,
+      logo_url: logoUrl || null,
       city: city || null,
       category: category || null,
       aliases,
@@ -45,4 +47,16 @@ export async function createClientAction(formData: FormData) {
 
   revalidatePath("/");
   redirect(`/clients/${data.id}`);
+}
+
+// Cancella a cascata competitor, set di query, diagnosi, cicli di misurazione,
+// interventi e report di verifica (tutte le foreign key su clients hanno "on
+// delete cascade" -- vedi le migration 0003-0007): irreversibile, per questo
+// la UI chiede conferma prima di chiamare questa action.
+export async function deleteClientAction(clientId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("clients").delete().eq("id", clientId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/");
 }

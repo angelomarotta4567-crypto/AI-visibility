@@ -26,11 +26,13 @@ import { Tooltip as TooltipImpl } from "./core/Tooltip.jsx";
 import { BarChart as BarChartImpl } from "./charts/BarChart.jsx";
 import { LineChart as LineChartImpl } from "./charts/LineChart.jsx";
 import { Sparkline as SparklineImpl } from "./charts/Sparkline.jsx";
+import { PieChart as PieChartImpl } from "./charts/PieChart.jsx";
 
 import { DataTable as DataTableImpl } from "./data/DataTable.jsx";
 import { Delta as DeltaImpl } from "./data/Delta.jsx";
 import { Metric as MetricImpl } from "./data/Metric.jsx";
 import { ProgressBar as ProgressBarImpl } from "./data/ProgressBar.jsx";
+import { CircularProgress as CircularProgressImpl } from "./data/CircularProgress.jsx";
 
 import { Sidebar as SidebarImpl } from "./navigation/Sidebar.jsx";
 
@@ -51,10 +53,12 @@ export const Tooltip: ComponentType<any> = TooltipImpl;
 export const BarChart: ComponentType<any> = BarChartImpl;
 export const LineChart: ComponentType<any> = LineChartImpl;
 export const Sparkline: ComponentType<any> = SparklineImpl;
+export const PieChart: ComponentType<any> = PieChartImpl;
 
 export const DataTable: ComponentType<any> = DataTableImpl;
 export const Delta: ComponentType<any> = DeltaImpl;
 export const Metric: ComponentType<any> = MetricImpl;
 export const ProgressBar: ComponentType<any> = ProgressBarImpl;
+export const CircularProgress: ComponentType<any> = CircularProgressImpl;
 
 export const Sidebar: ComponentType<any> = SidebarImpl;

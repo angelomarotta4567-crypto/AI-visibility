@@ -2,19 +2,9 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ds";
 import { SEGMENT_LABEL } from "@/lib/segments";
-import { ENGINE_LABEL } from "@/lib/status-labels";
+import { ENGINE_LABEL, SEVERITY_LABEL, SEVERITY_TONE } from "@/lib/status-labels";
+import { HOW_TO_FIX } from "@/lib/interventions/how-to-fix";
 import { PrintButton } from "./print-button";
-
-const SEVERITY_LABEL: Record<string, string> = {
-  bloccante: "Da correggere subito",
-  limitante: "Da migliorare",
-  opportunita: "Opportunità",
-};
-const SEVERITY_TONE: Record<string, "negative" | "warning" | "neutral"> = {
-  bloccante: "negative",
-  limitante: "warning",
-  opportunita: "neutral",
-};
 
 function scoreRead(score: number): { label: string; tone: "positive" | "warning" | "negative" } {
   if (score >= 71) return { label: "Il sito è ben messo per l'AI", tone: "positive" };
@@ -189,15 +179,23 @@ export default async function ClientReportPage({ params }: { params: Promise<{ i
 
         <Card title="Le prossime mosse consigliate" kicker="Fase 3 — Intervento">
           {interventions && interventions.length > 0 ? (
-            <ol style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-              {interventions.map((iv, i) => (
-                <li key={iv.id} style={{ display: "flex", gap: "var(--space-3)", alignItems: "baseline" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
-                    {i + 1}.
-                  </span>
-                  <span style={{ fontSize: "var(--text-sm)" }}>{iv.title}</span>
-                </li>
-              ))}
+            <ol style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              {interventions.map((iv, i) => {
+                const howToFix = HOW_TO_FIX[iv.title];
+                return (
+                  <li key={iv.id} style={{ display: "flex", gap: "var(--space-3)", alignItems: "baseline" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
+                      {i + 1}.
+                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+                      <strong style={{ fontSize: "var(--text-sm)" }}>{iv.title}</strong>
+                      {howToFix ? (
+                        <span style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>{howToFix.fix}</span>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           ) : (
             <p style={{ margin: 0, color: "var(--text-tertiary)" }}>Nessuna azione ancora suggerita per questa azienda.</p>

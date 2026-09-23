@@ -94,7 +94,7 @@ export default async function QuerySetDetailPage({
           }}
         >
           <Input name="text" placeholder="es. miglior ristorante di pesce a Bari" required style={{ flex: 1 }} />
-          <Button type="submit" variant="secondary" iconLeft="plus">
+          <Button type="submit" variant="primary" iconLeft="plus">
             Aggiungi query
           </Button>
         </form>

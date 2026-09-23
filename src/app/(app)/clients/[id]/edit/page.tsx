@@ -55,6 +55,15 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
 
           <Input name="website_url" label="Sito web" type="url" defaultValue={client.website_url ?? ""} placeholder="https://..." />
 
+          <Input
+            name="logo_url"
+            label="Logo (facoltativo)"
+            type="url"
+            defaultValue={client.logo_url ?? ""}
+            placeholder="https://..."
+            hint="Link a un'immagine già online (es. dal sito o dai social del cliente)."
+          />
+
           <Input name="city" label="Città" defaultValue={client.city ?? ""} placeholder="Bologna" />
 
           <Input name="category" label="Categoria" defaultValue={client.category ?? ""} placeholder="Ristorante, idraulico, agenzia immobiliare…" />

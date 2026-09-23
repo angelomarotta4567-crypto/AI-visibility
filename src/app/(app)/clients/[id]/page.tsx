@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "../../app-shell";
-import { Card, Badge, Button, Input, Select, Metric } from "@/components/ds";
+import { Card, Badge, Button, Input, Select, Metric, PieChart } from "@/components/ds";
 import { ClientQuerySetsTable } from "./query-sets-table";
 import { CompetitorsTable } from "./competitors-table";
 import { MeasurementCyclesTable } from "./measurement-cycles-table";
@@ -13,15 +13,12 @@ import { runMeasurementCycleAction } from "./measurement-actions";
 import { createInterventionAction, advanceInterventionStatusAction, deleteInterventionAction } from "./interventions-actions";
 import { createVerificationReportAction } from "./verification-actions";
 import { suggestInterventions } from "@/lib/interventions/suggest";
+import { HOW_TO_FIX } from "@/lib/interventions/how-to-fix";
 import { recommendNextCycle } from "@/lib/verification/recommend";
 import { SEGMENT_LABEL } from "@/lib/segments";
-import { CLIENT_STATUS_LABEL } from "@/lib/status-labels";
-
-const severityTone: Record<string, "negative" | "warning" | "neutral"> = {
-  bloccante: "negative",
-  limitante: "warning",
-  opportunita: "neutral",
-};
+import { CLIENT_STATUS_LABEL, SEVERITY_LABEL, SEVERITY_TONE } from "@/lib/status-labels";
+import { FINDING_PENALTY } from "@/lib/diagnosis/run";
+import { ClientAvatar } from "@/components/client-avatar";
 
 type QuerySet = {
   id: string;
@@ -159,8 +156,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   return (
     <AppShell activeKey="clienti" userEmail={user?.email ?? null}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <h1>{client.name}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+          <ClientAvatar name={client.name} logoUrl={client.logo_url} size={40} />
+          <div>
+            <h1>{client.name}</h1>
           <p style={{ margin: 0, color: "var(--text-secondary)" }}>
             {client.website_url ? (
               <a href={client.website_url} target="_blank" rel="noreferrer">
@@ -173,6 +172,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               <span> · {[client.category, client.city].filter(Boolean).join(", ")}</span>
             ) : null}
           </p>
+          </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           <Badge tone="accent">{SEGMENT_LABEL[client.segment] ?? client.segment}</Badge>
@@ -241,26 +241,61 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
             <Metric label="Punteggio di recuperabilità" value={String(latestDiagnosis.recoverability_score)} unit="/100" />
             {findings.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-                {findings.map((f, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "var(--space-1)",
-                      paddingTop: "var(--space-3)",
-                      borderTop: "var(--border-width) solid var(--border-subtle)",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                      <Badge tone={severityTone[f.severity]}>{f.severity}</Badge>
-                      <span style={{ fontWeight: "var(--weight-medium)" }}>{f.title}</span>
+              <>
+                <div>
+                  <span style={{ fontSize: "var(--text-2xs)", letterSpacing: "var(--tracking-label)", textTransform: "uppercase", color: "var(--text-tertiary)" }}>
+                    Peso relativo dei problemi trovati
+                  </span>
+                  <PieChart
+                    style={{ marginTop: "var(--space-2)" }}
+                    slices={findings.map((f) => ({
+                      label: f.title,
+                      value: FINDING_PENALTY[f.severity],
+                      color:
+                        SEVERITY_TONE[f.severity] === "negative"
+                          ? "var(--data-negative)"
+                          : SEVERITY_TONE[f.severity] === "warning"
+                            ? "var(--data-warning)"
+                            : "var(--data-neutral)",
+                    }))}
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+                  {findings.map((f, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "var(--space-1)",
+                        paddingTop: "var(--space-3)",
+                        borderTop: "var(--border-width) solid var(--border-subtle)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                        <Badge tone={SEVERITY_TONE[f.severity]}>{SEVERITY_LABEL[f.severity] ?? f.severity}</Badge>
+                        <span style={{ fontWeight: "var(--weight-medium)" }}>{f.title}</span>
+                      </div>
+                      <span style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{f.description}</span>
+                      {HOW_TO_FIX[f.title] ? (
+                        <details style={{ marginTop: "var(--space-1)" }}>
+                          <summary style={{ fontSize: "var(--text-xs)", color: "var(--accent-text)", cursor: "pointer" }}>
+                            Cosa significa e come si risolve
+                          </summary>
+                          <div style={{ marginTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                            <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
+                              <strong>Cosa significa:</strong> {HOW_TO_FIX[f.title].meaning}
+                            </p>
+                            <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
+                              <strong>Come si risolve:</strong> {HOW_TO_FIX[f.title].fix}
+                            </p>
+                          </div>
+                        </details>
+                      ) : null}
                     </div>
-                    <span style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{f.description}</span>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <p style={{ margin: 0, color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
                 Nessun blocco tecnico rilevato nell&rsquo;ultima esecuzione.
@@ -289,12 +324,19 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
             <form
               action={addCompetitor}
-              style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-end", paddingTop: "var(--space-2)", borderTop: "var(--border-width) solid var(--border-subtle)" }}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                gap: "var(--space-2)",
+                alignItems: "end",
+                paddingTop: "var(--space-3)",
+                borderTop: "var(--border-width) solid var(--border-subtle)",
+              }}
             >
-              <Input name="name" placeholder="Nome competitor" required style={{ flex: 1 }} />
-              <Input name="url" placeholder="https://..." type="url" style={{ flex: 1 }} />
-              <Input name="aliases" placeholder="Alias (separati da virgola)" style={{ flex: 1 }} />
-              <Button type="submit" variant="secondary" iconLeft="plus">
+              <Input name="name" label="Nome" placeholder="Nome competitor" required />
+              <Input name="url" label="Sito (facoltativo)" placeholder="https://..." type="url" />
+              <Input name="aliases" label="Alias (facoltativo)" placeholder="Separati da virgola" />
+              <Button type="submit" variant="primary" iconLeft="plus" style={{ height: "var(--control-height)" }}>
                 Aggiungi
               </Button>
             </form>
@@ -397,6 +439,21 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       <span style={{ fontWeight: "var(--weight-medium)" }}>{s.title}</span>
                     </div>
                     <span style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{s.description}</span>
+                    {HOW_TO_FIX[s.title] ? (
+                      <details style={{ marginTop: "var(--space-1)" }}>
+                        <summary style={{ fontSize: "var(--text-xs)", color: "var(--accent-text)", cursor: "pointer" }}>
+                          Cosa significa e come si risolve
+                        </summary>
+                        <div style={{ marginTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                          <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
+                            <strong>Cosa significa:</strong> {HOW_TO_FIX[s.title].meaning}
+                          </p>
+                          <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
+                            <strong>Come si risolve:</strong> {HOW_TO_FIX[s.title].fix}
+                          </p>
+                        </div>
+                      </details>
+                    ) : null}
                   </div>
                   <form action={createIntervention} style={{ flex: "none" }}>
                     <input type="hidden" name="title" value={s.title} />

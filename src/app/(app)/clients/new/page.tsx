@@ -35,6 +35,14 @@ export default async function NewClientPage() {
 
           <Input name="website_url" label="Sito web" type="url" placeholder="https://..." />
 
+          <Input
+            name="logo_url"
+            label="Logo (facoltativo)"
+            type="url"
+            placeholder="https://..."
+            hint="Link a un'immagine già online (es. dal sito o dai social del cliente)."
+          />
+
           <Input name="city" label="Città" placeholder="Bologna" />
 
           <Input name="category" label="Categoria" placeholder="Ristorante, idraulico, agenzia immobiliare…" />

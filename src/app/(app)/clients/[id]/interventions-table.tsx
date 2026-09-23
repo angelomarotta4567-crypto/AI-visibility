@@ -2,6 +2,7 @@
 
 import { Badge, Button, DataTable } from "@/components/ds";
 import { LEVER_CATEGORY_LABEL } from "@/lib/status-labels";
+import { HOW_TO_FIX } from "@/lib/interventions/how-to-fix";
 
 export type InterventionRow = {
   id: string;
@@ -45,7 +46,33 @@ export function InterventionsTable({
   return (
     <DataTable
       columns={[
-        { key: "title", header: "Azione" },
+        {
+          key: "title",
+          header: "Azione",
+          render: (r: InterventionRow) => {
+            const howToFix = HOW_TO_FIX[r.title];
+            return (
+              <div>
+                <div>{r.title}</div>
+                {howToFix ? (
+                  <details>
+                    <summary style={{ fontSize: "var(--text-xs)", color: "var(--accent-text)", cursor: "pointer" }}>
+                      Cosa significa e come si risolve
+                    </summary>
+                    <div style={{ margin: "var(--space-2) 0 var(--space-1)", display: "flex", flexDirection: "column", gap: "var(--space-2)", maxWidth: 480 }}>
+                      <p style={{ margin: 0, fontSize: "var(--text-sm)", whiteSpace: "normal" }}>
+                        <strong>Cosa significa:</strong> {howToFix.meaning}
+                      </p>
+                      <p style={{ margin: 0, fontSize: "var(--text-sm)", whiteSpace: "normal" }}>
+                        <strong>Come si risolve:</strong> {howToFix.fix}
+                      </p>
+                    </div>
+                  </details>
+                ) : null}
+              </div>
+            );
+          },
+        },
         {
           key: "lever_category",
           header: "Leva",
