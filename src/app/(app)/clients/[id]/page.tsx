@@ -278,19 +278,18 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       </div>
                       <span style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{f.description}</span>
                       {HOW_TO_FIX[f.title] ? (
-                        <details style={{ marginTop: "var(--space-1)" }}>
-                          <summary style={{ fontSize: "var(--text-xs)", color: "var(--accent-text)", cursor: "pointer" }}>
-                            Cosa significa e come si risolve
-                          </summary>
-                          <div style={{ marginTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                            <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
-                              <strong>Cosa significa:</strong> {HOW_TO_FIX[f.title].meaning}
-                            </p>
-                            <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
-                              <strong>Come si risolve:</strong> {HOW_TO_FIX[f.title].fix}
-                            </p>
-                          </div>
-                        </details>
+                        <p
+                          style={{
+                            margin: "var(--space-1) 0 0",
+                            fontSize: "var(--text-sm)",
+                            color: "var(--text-primary)",
+                            padding: "var(--space-2) var(--space-3)",
+                            background: "var(--surface-2)",
+                            borderRadius: "var(--radius-sm)",
+                          }}
+                        >
+                          <strong>Come si risolve:</strong> {HOW_TO_FIX[f.title].fix}
+                        </p>
                       ) : null}
                     </div>
                   ))}
@@ -440,19 +439,18 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                     </div>
                     <span style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{s.description}</span>
                     {HOW_TO_FIX[s.title] ? (
-                      <details style={{ marginTop: "var(--space-1)" }}>
-                        <summary style={{ fontSize: "var(--text-xs)", color: "var(--accent-text)", cursor: "pointer" }}>
-                          Cosa significa e come si risolve
-                        </summary>
-                        <div style={{ marginTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                          <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
-                            <strong>Cosa significa:</strong> {HOW_TO_FIX[s.title].meaning}
-                          </p>
-                          <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
-                            <strong>Come si risolve:</strong> {HOW_TO_FIX[s.title].fix}
-                          </p>
-                        </div>
-                      </details>
+                      <p
+                        style={{
+                          margin: "var(--space-1) 0 0",
+                          fontSize: "var(--text-sm)",
+                          color: "var(--text-primary)",
+                          padding: "var(--space-2) var(--space-3)",
+                          background: "var(--surface-2)",
+                          borderRadius: "var(--radius-sm)",
+                        }}
+                      >
+                        <strong>Come si risolve:</strong> {HOW_TO_FIX[s.title].fix}
+                      </p>
                     ) : null}
                   </div>
                   <form action={createIntervention} style={{ flex: "none" }}>

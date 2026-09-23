@@ -52,22 +52,22 @@ export function InterventionsTable({
           render: (r: InterventionRow) => {
             const howToFix = HOW_TO_FIX[r.title];
             return (
-              <div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", maxWidth: 420 }}>
                 <div>{r.title}</div>
                 {howToFix ? (
-                  <details>
-                    <summary style={{ fontSize: "var(--text-xs)", color: "var(--accent-text)", cursor: "pointer" }}>
-                      Cosa significa e come si risolve
-                    </summary>
-                    <div style={{ margin: "var(--space-2) 0 var(--space-1)", display: "flex", flexDirection: "column", gap: "var(--space-2)", maxWidth: 480 }}>
-                      <p style={{ margin: 0, fontSize: "var(--text-sm)", whiteSpace: "normal" }}>
-                        <strong>Cosa significa:</strong> {howToFix.meaning}
-                      </p>
-                      <p style={{ margin: 0, fontSize: "var(--text-sm)", whiteSpace: "normal" }}>
-                        <strong>Come si risolve:</strong> {howToFix.fix}
-                      </p>
-                    </div>
-                  </details>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "var(--text-sm)",
+                      whiteSpace: "normal",
+                      color: "var(--text-primary)",
+                      padding: "var(--space-2) var(--space-3)",
+                      background: "var(--surface-2)",
+                      borderRadius: "var(--radius-sm)",
+                    }}
+                  >
+                    <strong>Come si risolve:</strong> {howToFix.fix}
+                  </p>
                 ) : null}
               </div>
             );
