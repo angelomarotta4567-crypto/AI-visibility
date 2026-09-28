@@ -227,6 +227,7 @@ export async function runMeasurementCycleChunk({
   const chunkJobs = jobs.slice(processedSoFar, processedSoFar + CHUNK_SIZE);
 
   let chunkFailures = 0;
+  let lastError: string | null = null;
   for (const job of chunkJobs) {
     let ok = false;
     // Un retry: i fallimenti osservati contro Gemini sono quasi tutti
@@ -239,6 +240,7 @@ export async function runMeasurementCycleChunk({
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         console.error(`[measurement] ${job.engineCode} query=${job.queryId} attempt ${attempt} failed: ${message}`);
+        lastError = `${job.engineCode}: ${message}`;
       }
     }
     if (!ok) chunkFailures++;
@@ -246,7 +248,7 @@ export async function runMeasurementCycleChunk({
 
   const newFailedTotal = cycle.failed_jobs + chunkFailures;
   if (chunkFailures > 0) {
-    await supabase.from("measurement_cycles").update({ failed_jobs: newFailedTotal }).eq("id", cycleId);
+    await supabase.from("measurement_cycles").update({ failed_jobs: newFailedTotal, last_error: lastError }).eq("id", cycleId);
   }
 
   const newProcessedSoFar = processedSoFar + chunkJobs.length;
