@@ -3,20 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CircularProgress, Badge } from "@/components/ds";
-import { processMeasurementCycleChunkAction } from "../../measurement-actions";
-import { ENGINE_LABEL } from "@/lib/status-labels";
+import { getMeasurementCycleProgressAction } from "../../measurement-actions";
 
-/** Guida un ciclo "running" attraverso i suoi blocchi finché non è completo
- * (vedi run-cycle.ts per il perché dell'esecuzione a blocchi). Riaprire
- * questa pagina su un ciclo lasciato a metà lo riprende automaticamente,
- * perché il progresso vive nel DB, non in questo componente. */
+const POLL_MS = 2000;
+
+/** Mostra l'avanzamento di un ciclo "running" leggendolo dal DB ogni paio di
+ * secondi -- non esegue più nulla lei stessa. L'esecuzione vera prosegue sul
+ * server (vedi /api/measurement/tick), quindi il ciclo continua anche se
+ * questa pagina non viene mai aperta o viene chiusa a metà: riaprirla mostra
+ * semplicemente lo stato attuale. */
 export function CycleProgressRunner({
-  clientId,
   cycleId,
   initialTotal,
   initialProcessed,
 }: {
-  clientId: string;
   cycleId: string;
   initialTotal: number | null;
   initialProcessed: number;
@@ -24,59 +24,45 @@ export function CycleProgressRunner({
   const router = useRouter();
   const [total, setTotal] = useState(initialTotal);
   const [processed, setProcessed] = useState(initialProcessed);
-  const [skippedEngines, setSkippedEngines] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Niente guardia "già partito" via ref: sotto React Strict Mode (dev) React
-  // monta/pulisce/rimonta l'effetto una volta per aiutare a scovare bug come
-  // questo. Una guardia persistente bloccherebbe il SECONDO montaggio (quello
-  // che sopravvive) mentre il primo, già annullato, si limita a consumare in
-  // silenzio un blocco senza mai aggiornare lo stato -- il ciclo appare
-  // fermo per sempre nella UI pur avanzando nel DB. Ogni istanza dell'effetto
-  // gestisce la propria cancellazione tramite la chiusura locale.
   useEffect(() => {
     let cancelled = false;
 
-    async function loop() {
-      while (!cancelled) {
-        try {
-          const result = await processMeasurementCycleChunkAction(clientId, cycleId);
-          if (cancelled) return;
-          setTotal(result.totalJobs);
-          setProcessed(result.processedJobs);
-          setSkippedEngines(result.skippedEngines);
-          if (result.done) {
-            router.refresh();
-            return;
-          }
-        } catch (err) {
-          // Il dettaglio tecnico (spesso in inglese: errori API dei motori,
-          // nomi di variabili d'ambiente, nomi di tabelle) resta in console
-          // per il debug -- mai mostrato com'è all'utente in demo.
-          console.error("[misurazione] blocco fallito:", err);
-          if (!cancelled) {
-            setError("Si è verificato un problema imprevisto durante la misurazione. Ricarica la pagina per riprovare.");
-          }
+    async function poll() {
+      try {
+        const progress = await getMeasurementCycleProgressAction(cycleId);
+        if (cancelled) return;
+        setTotal(progress.totalJobs);
+        setProcessed(progress.processedJobs);
+        if (progress.status !== "running") {
+          router.refresh();
           return;
+        }
+        setTimeout(poll, POLL_MS);
+      } catch (err) {
+        console.error("[misurazione] lettura avanzamento fallita:", err);
+        if (!cancelled) {
+          setError("Non riesco a leggere l'avanzamento in questo momento. Ricarica la pagina per riprovare.");
         }
       }
     }
-    loop();
+    poll();
     return () => {
       cancelled = true;
     };
-  }, [clientId, cycleId, router]);
+  }, [cycleId, router]);
 
   if (error) {
     return (
       <Card>
-        <Badge tone="negative">Misurazione interrotta: {error}</Badge>
+        <Badge tone="negative">{error}</Badge>
       </Card>
     );
   }
 
   return (
-    <Card title="Misurazione in corso" kicker="Ogni query viene eseguita più volte per motore -- può richiedere diversi minuti">
+    <Card title="Misurazione in corso" kicker="Prosegue sul server anche se chiudi questa pagina -- può richiedere diversi minuti">
       <div style={{ display: "flex", justifyContent: "center", padding: "var(--space-2) 0" }}>
         <CircularProgress
           value={processed}
@@ -85,11 +71,6 @@ export function CycleProgressRunner({
           label={`${processed} / ${total ?? "…"} esecuzioni`}
         />
       </div>
-      {skippedEngines.length > 0 ? (
-        <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
-          Motori esclusi (non ancora attivati su questo account): {skippedEngines.map((e) => ENGINE_LABEL[e] ?? e).join(", ")}
-        </p>
-      ) : null}
     </Card>
   );
 }

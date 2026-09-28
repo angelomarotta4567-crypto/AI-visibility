@@ -1,9 +1,11 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { startMeasurementCycle, runMeasurementCycleChunk, type ChunkResult } from "@/lib/engines/run-cycle";
+import { startMeasurementCycle } from "@/lib/engines/run-cycle";
+import { triggerMeasurementTick } from "@/lib/engines/tick";
 
 export async function runMeasurementCycleAction(clientId: string, formData: FormData) {
   const querySetId = String(formData.get("query_set_id") ?? "");
@@ -15,16 +17,45 @@ export async function runMeasurementCycleAction(clientId: string, formData: Form
   const supabase = await createClient();
   const { cycleId } = await startMeasurementCycle({ supabase, clientId, querySetId, cycleType });
 
+  // L'esecuzione prosegue lato server (vedi /api/measurement/tick) anche se
+  // questa pagina non viene mai aperta o viene chiusa a metà.
+  after(() => triggerMeasurementTick(cycleId));
+
   revalidatePath(`/clients/${clientId}`);
   redirect(`/clients/${clientId}/measurement-cycles/${cycleId}`);
 }
 
-/** Chiamata ripetutamente dal client (vedi cycle-progress-runner.tsx) finché
- * il ciclo non è completo -- ogni chiamata esegue solo un piccolo blocco di
- * job, così nessuna singola invocazione rischia il timeout della piattaforma. */
-export async function processMeasurementCycleChunkAction(clientId: string, cycleId: string): Promise<ChunkResult> {
+export type CycleProgress = {
+  status: string;
+  totalJobs: number | null;
+  processedJobs: number;
+  successfulRuns: number;
+  failedRuns: number;
+};
+
+/** Sola lettura: usata dalla pagina del ciclo per aggiornare la barra di
+ * avanzamento mentre l'esecuzione vera prosegue sul server via tick -- non fa
+ * più avanzare nulla lei stessa (vedi cycle-progress-runner.tsx). */
+export async function getMeasurementCycleProgressAction(cycleId: string): Promise<CycleProgress> {
   const supabase = await createClient();
-  const result = await runMeasurementCycleChunk({ supabase, cycleId });
-  if (result.done) revalidatePath(`/clients/${clientId}`);
-  return result;
+  const { data: cycle, error } = await supabase
+    .from("measurement_cycles")
+    .select("status, total_jobs, failed_jobs")
+    .eq("id", cycleId)
+    .single();
+  if (error) throw new Error(error.message);
+
+  const { count: successfulCount } = await supabase
+    .from("measurement_runs")
+    .select("id", { count: "exact", head: true })
+    .eq("measurement_cycle_id", cycleId);
+
+  const successfulRuns = successfulCount ?? 0;
+  return {
+    status: cycle.status,
+    totalJobs: cycle.total_jobs,
+    processedJobs: successfulRuns + cycle.failed_jobs,
+    successfulRuns,
+    failedRuns: cycle.failed_jobs,
+  };
 }

@@ -7,11 +7,8 @@ import { RunsTable, type RunRow } from "./runs-table";
 import { CycleProgressRunner } from "./cycle-progress-runner";
 import { MEASUREMENT_CYCLE_STATUS_LABEL, ENGINE_LABEL } from "@/lib/status-labels";
 
-// Ogni job (una chiamata a un motore) può richiedere fino a ~45s col retry;
-// processMeasurementCycleChunkAction esegue un job alla volta (vedi
-// run-cycle.ts), ma diamo comunque margine oltre il default della
-// piattaforma -- innocuo se il piano non lo consente, viene troncato.
-export const maxDuration = 120;
+// Questa pagina ora legge soltanto: l'esecuzione vera prosegue lato server
+// via /api/measurement/tick (che ha il proprio maxDuration), non qui.
 
 const cycleTypeLabel: Record<string, string> = { baseline: "Baseline", verification: "Verifica" };
 const statusTone: Record<string, "positive" | "accent" | "negative" | "neutral"> = {
@@ -110,7 +107,6 @@ export default async function MeasurementCycleDetailPage({
 
       {cycle.status === "running" ? (
         <CycleProgressRunner
-          clientId={id}
           cycleId={cycleId}
           initialTotal={cycle.total_jobs}
           initialProcessed={runRows.length + cycle.failed_jobs}
