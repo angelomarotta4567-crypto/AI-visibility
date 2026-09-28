@@ -3,15 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CircularProgress, Badge } from "@/components/ds";
-import { getMeasurementCycleProgressAction } from "../../measurement-actions";
+import { getMeasurementCycleProgressAction, nudgeMeasurementCycleAction } from "../../measurement-actions";
 
 const POLL_MS = 2000;
+// La catena server-to-server (vedi /api/measurement/tick) di norma prosegue
+// da sola, ma un anello può perdersi in silenzio. Dopo 2 letture di fila
+// senza alcun avanzamento diamo una spinta -- solo mentre questa pagina è
+// aperta: se è chiusa il ciclo può restare fermo fino alla riapertura, ma
+// non è più legato ad averla aperta fin dall'inizio come prima.
+const STALL_THRESHOLD = 2;
 
 /** Mostra l'avanzamento di un ciclo "running" leggendolo dal DB ogni paio di
- * secondi -- non esegue più nulla lei stessa. L'esecuzione vera prosegue sul
- * server (vedi /api/measurement/tick), quindi il ciclo continua anche se
- * questa pagina non viene mai aperta o viene chiusa a metà: riaprirla mostra
- * semplicemente lo stato attuale. */
+ * secondi -- non esegue più nulla lei stessa (a parte la spinta di scorta
+ * sopra). L'esecuzione vera prosegue sul server, quindi il ciclo continua
+ * anche se questa pagina non viene mai aperta o viene chiusa a metà. */
 export function CycleProgressRunner({
   cycleId,
   initialTotal,
@@ -28,6 +33,8 @@ export function CycleProgressRunner({
 
   useEffect(() => {
     let cancelled = false;
+    let lastProcessed = initialProcessed;
+    let stalledPolls = 0;
 
     async function poll() {
       try {
@@ -39,6 +46,20 @@ export function CycleProgressRunner({
           router.refresh();
           return;
         }
+
+        if (progress.processedJobs === lastProcessed) {
+          stalledPolls++;
+        } else {
+          stalledPolls = 0;
+          lastProcessed = progress.processedJobs;
+        }
+        if (stalledPolls >= STALL_THRESHOLD) {
+          stalledPolls = 0;
+          nudgeMeasurementCycleAction(cycleId).catch((err) =>
+            console.error("[misurazione] spinta di scorta fallita:", err),
+          );
+        }
+
         setTimeout(poll, POLL_MS);
       } catch (err) {
         console.error("[misurazione] lettura avanzamento fallita:", err);
@@ -51,7 +72,7 @@ export function CycleProgressRunner({
     return () => {
       cancelled = true;
     };
-  }, [cycleId, router]);
+  }, [cycleId, router, initialProcessed]);
 
   if (error) {
     return (

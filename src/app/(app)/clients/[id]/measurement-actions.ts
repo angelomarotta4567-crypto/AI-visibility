@@ -59,3 +59,13 @@ export async function getMeasurementCycleProgressAction(cycleId: string): Promis
     failedRuns: cycle.failed_jobs,
   };
 }
+
+/** Rete di sicurezza: la catena server-to-server (dopo un tick, il tick
+ * successivo si autoinnesca via after() -- vedi /api/measurement/tick) di
+ * norma prosegue da sola, ma un anello può perdersi in silenzio senza che
+ * nulla lo segnali. Se la pagina del ciclo nota che l'avanzamento è fermo,
+ * chiama questa per dare una spinta -- idempotente, il prossimo job da fare
+ * si ricalcola sempre dallo stato nel DB, non da un contatore in memoria. */
+export async function nudgeMeasurementCycleAction(cycleId: string): Promise<void> {
+  await triggerMeasurementTick(cycleId);
+}
