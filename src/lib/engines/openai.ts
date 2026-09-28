@@ -49,7 +49,13 @@ async function query(queryText: string): Promise<EngineQueryResult> {
   return {
     responseText,
     citations,
-    raw: { model: response.model ?? MODEL, status: response.status ?? null },
+    raw: {
+      model: response.model ?? MODEL,
+      status: response.status ?? null,
+      // Prova che ogni run è una chiamata distinta al provider, anche quando il
+      // contenuto della risposta coincide tra ripetizioni (vedi perplexity.ts).
+      responseId: response.id ?? null,
+    },
   };
 }
 

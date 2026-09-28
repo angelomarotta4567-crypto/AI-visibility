@@ -41,7 +41,7 @@ async function query(queryText: string): Promise<EngineQueryResult> {
     throw new Error(`Perplexity API error ${res.status}: ${body.slice(0, 300)}`);
   }
 
-  const data: { model?: string; status?: string; output?: AgentOutputItem[] } = await res.json();
+  const data: { id?: string; model?: string; status?: string; output?: AgentOutputItem[] } = await res.json();
   const output = data.output ?? [];
 
   const messageItem = output.find((o): o is Extract<AgentOutputItem, { type: "message" }> => o.type === "message");
@@ -57,7 +57,16 @@ async function query(queryText: string): Promise<EngineQueryResult> {
   return {
     responseText,
     citations,
-    raw: { model: data.model ?? null, status: data.status ?? null },
+    raw: {
+      model: data.model ?? null,
+      status: data.status ?? null,
+      // Perplexity applica una cache lato server sulla ricerca per query
+      // testualmente identiche (osservato: stesse fonti a distanza di ore,
+      // non solo minuti -- vedi CLAUDE.md sul non-determinismo). Salvare
+      // l'id di risposta prova che le 3 ripetizioni restano comunque
+      // chiamate distinte, anche quando il contenuto coincide.
+      responseId: data.id ?? null,
+    },
   };
 }
 

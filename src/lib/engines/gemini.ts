@@ -75,6 +75,9 @@ async function query(queryText: string): Promise<EngineQueryResult> {
       model: response.modelVersion ?? MODEL,
       finishReason: response.candidates?.[0]?.finishReason ?? null,
       webSearchQueries: response.candidates?.[0]?.groundingMetadata?.webSearchQueries ?? [],
+      // Prova che ogni run è una chiamata distinta al provider, anche quando il
+      // contenuto della risposta coincide tra ripetizioni (vedi perplexity.ts).
+      responseId: response.responseId ?? null,
     },
   };
 }

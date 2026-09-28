@@ -210,6 +210,11 @@ export default async function ClientReportPage({ params }: { params: Promise<{ i
             vendite: nessun servizio di questo tipo può garantirlo, né garantire un posizionamento fisso su un motore
             specifico.
           </p>
+          <p style={{ margin: "var(--space-3) 0 0", fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
+            Per Perplexity in particolare, le fonti citate per una stessa domanda tendono a restare le stesse anche
+            ripetendo la domanda più volte a distanza di ore: è un comportamento del motore stesso, non un errore di
+            misurazione. Le ripetizioni restano comunque utili per gli altri motori.
+          </p>
         </Card>
 
         <p style={{ margin: 0, textAlign: "center", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
