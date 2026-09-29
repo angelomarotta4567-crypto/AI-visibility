@@ -4,6 +4,7 @@ import { Card, Badge } from "@/components/ds";
 import { SEGMENT_LABEL } from "@/lib/segments";
 import { ENGINE_LABEL, SEVERITY_LABEL, SEVERITY_TONE } from "@/lib/status-labels";
 import { HOW_TO_FIX } from "@/lib/interventions/how-to-fix";
+import { topCitedDomains, hostnameOf } from "@/lib/engines/top-sources";
 import { PrintButton } from "./print-button";
 
 function scoreRead(score: number): { label: string; tone: "positive" | "warning" | "negative" } {
@@ -45,14 +46,20 @@ export default async function ClientReportPage({ params }: { params: Promise<{ i
 
   if (!client) notFound();
 
-  const [{ data: engineStats }, { data: shareOfVoice }] = await Promise.all([
+  const [{ data: engineStats }, { data: shareOfVoice }, { data: cycleRuns }] = await Promise.all([
     latestCycle
       ? supabase.from("measurement_cycle_engine_stats").select("*").eq("measurement_cycle_id", latestCycle.id)
       : Promise.resolve({ data: null }),
     latestCycle
       ? supabase.from("measurement_cycle_share_of_voice").select("*").eq("cycle_id", latestCycle.id).maybeSingle()
       : Promise.resolve({ data: null }),
+    latestCycle
+      ? supabase.from("measurement_runs").select("engine_code, raw_response").eq("measurement_cycle_id", latestCycle.id)
+      : Promise.resolve({ data: null }),
   ]);
+
+  const topSources = topCitedDomains(cycleRuns ?? []);
+  const clientHostname = hostnameOf(client.website_url);
 
   const findings = (latestDiagnosis?.diagnosis_findings ?? []) as {
     id: string;
@@ -176,6 +183,32 @@ export default async function ClientReportPage({ params }: { params: Promise<{ i
             <p style={{ margin: 0, color: "var(--text-tertiary)" }}>Nessuna misurazione completata ancora per questa azienda.</p>
           )}
         </Card>
+
+        {topSources.length > 0 ? (
+          <Card title="Dove guardano i motori AI" kicker="I domini citati più spesso, questo ciclo">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              {topSources.map((s, i) => (
+                <div
+                  key={s.domain}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "var(--space-3)",
+                    padding: "var(--space-2) 0",
+                    borderBottom: i < topSources.length - 1 ? "var(--border-width) solid var(--border-subtle)" : "none",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <span style={{ fontSize: "var(--text-sm)" }}>{s.domain}</span>
+                    {clientHostname && s.domain === clientHostname ? <Badge tone="positive">È voi</Badge> : null}
+                  </div>
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>{s.count} esecuzioni</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ) : null}
 
         <Card title="Le prossime mosse consigliate" kicker="Fase 3 — Intervento">
           {interventions && interventions.length > 0 ? (
