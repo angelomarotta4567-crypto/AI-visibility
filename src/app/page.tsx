@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { Card } from "@/components/ds";
 
-// Placeholder finché non mi dai i dati veri: sostituisci prima di condividere
-// il link con un vero dentista. Vedi anche l'avatar più sotto (foto vera).
-const CONTACT_PHONE = "+39 000 000 0000"; // TODO Angelo: il tuo numero (telefono o WhatsApp)
-const CONTACT_EMAIL = "nome@esempio.it"; // TODO Angelo: l'email da mostrare in pubblico
+const CONTACT_PHONE = "+39 392 111 5365";
+const CONTACT_EMAIL = "angelo.marotta4567@gmail.com";
 
 const PHASES = [
   { n: "1", title: "Diagnosi", text: "Controlliamo se il vostro sito è leggibile dai motori AI, non solo dalle persone." },
@@ -122,24 +120,12 @@ export default function PublicHomePage() {
         </section>
 
         <section style={{ display: "flex", gap: "var(--space-4)", alignItems: "center" }}>
-          <span
-            style={{
-              flex: "none",
-              width: 64,
-              height: 64,
-              borderRadius: "50%",
-              background: "var(--accent-subtle)",
-              color: "var(--accent-text)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "var(--text-xl)",
-              fontWeight: "var(--weight-semibold)",
-            }}
-            aria-hidden
-          >
-            AM
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- immagine statica in public/, next/image è overkill qui */}
+          <img
+            src="/angelo.jpeg"
+            alt="Angelo Marotta"
+            style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", flex: "none" }}
+          />
           <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
             Sono Angelo, di Dalmine. Controllo e miglioro quanto le attività locali vengono trovate dalle
             intelligenze artificiali quando qualcuno cerca un consiglio.
