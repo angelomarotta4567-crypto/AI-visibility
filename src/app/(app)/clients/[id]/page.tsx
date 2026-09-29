@@ -7,7 +7,7 @@ import { ClientQuerySetsTable } from "./query-sets-table";
 import { CompetitorsTable } from "./competitors-table";
 import { MeasurementCyclesTable } from "./measurement-cycles-table";
 import { InterventionsTable, type InterventionRow } from "./interventions-table";
-import { addCompetitorAction, deleteCompetitorAction, createQuerySetAction } from "./actions";
+import { addCompetitorAction, deleteCompetitorAction, createQuerySetAction, copyFromClientAction } from "./actions";
 import { runDiagnosisAction } from "./diagnosis-actions";
 import { runMeasurementCycleAction } from "./measurement-actions";
 import { createInterventionAction, advanceInterventionStatusAction, deleteInterventionAction } from "./interventions-actions";
@@ -41,6 +41,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     { data: measurementCycles },
     { data: interventions },
     { data: verificationReports },
+    { data: otherClients },
   ] = await Promise.all([
     supabase.auth.getUser().then((r) => ({ data: r.data.user })),
     supabase.from("clients").select("*").eq("id", id).maybeSingle(),
@@ -73,6 +74,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       .select("id, summary, recommendation, limits_note, created_at")
       .eq("client_id", id)
       .order("created_at", { ascending: false }),
+    supabase.from("clients").select("id, name").neq("id", id).order("name"),
   ]);
 
   if (!client) notFound();
@@ -80,6 +82,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const deleteCompetitor = deleteCompetitorAction.bind(null, id);
   const addCompetitor = addCompetitorAction.bind(null, id);
   const createQuerySet = createQuerySetAction.bind(null, id);
+  const copyFromClient = copyFromClientAction.bind(null, id);
   const runDiagnosis = runDiagnosisAction.bind(null, id);
   const runMeasurement = runMeasurementCycleAction.bind(null, id);
   const createIntervention = createInterventionAction.bind(null, id);
@@ -309,6 +312,24 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           </p>
         )}
       </Card>
+
+      {otherClients && otherClients.length > 0 ? (
+        <Card title="Copia da un altro cliente" kicker="Concorrenti + set di query attivo, in un colpo solo">
+          <form
+            action={copyFromClient}
+            style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "var(--space-2)", alignItems: "end" }}
+          >
+            <Select
+              name="source_client_id"
+              label="Copia concorrenti e query da"
+              options={otherClients.map((c) => ({ value: c.id, label: c.name }))}
+            />
+            <Button type="submit" variant="secondary" iconLeft="copy" style={{ height: "var(--control-height)" }}>
+              Copia
+            </Button>
+          </form>
+        </Card>
+      ) : null}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)", alignItems: "start" }}>
         <Card title="Competitor" kicker={`${competitors?.length ?? 0} totali`}>
