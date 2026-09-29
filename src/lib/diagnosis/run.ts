@@ -13,6 +13,28 @@ export const FINDING_PENALTY: Record<Severity, number> = {
   opportunita: 5,
 };
 
+// Titolo condiviso con suggest.ts, che lo usa per riconoscere questo caso e
+// proporre le 3 leve specifiche "nessun sito" invece del playbook generico.
+export const NO_WEBSITE_FINDING_TITLE = "Nessun sito web: Gemini non ha una fonte da citare";
+
+/** Un cliente senza sito non può passare dal fetch di runDiagnosis (non c'è
+ * nessuna URL da contattare) -- osservato sui dentisti di Dalmine: 3 clienti
+ * su 5 senza sito, esclusi del tutto da Gemini (0/60) proprio per questo.
+ * Diagnosi diversa ma altrettanto concreta: il problema è il sito stesso, non
+ * qualcosa su di esso. */
+export function diagnoseNoWebsite(): DiagnosisResult {
+  const findings: Finding[] = [
+    {
+      title: NO_WEBSITE_FINDING_TITLE,
+      severity: "bloccante",
+      description:
+        "Senza un sito web, Gemini non ha nessuna pagina propria dell'azienda da citare quando risponde a una domanda -- è il motivo più diretto per cui un'attività risulta assente dalle risposte. Serve almeno una pagina, anche minima.",
+    },
+  ];
+  const score = Math.max(0, 100 - findings.reduce((sum, f) => sum + FINDING_PENALTY[f.severity], 0));
+  return { recoverability_score: score, findings };
+}
+
 function normalizeUrl(input: string): string {
   return /^https?:\/\//i.test(input) ? input : `https://${input}`;
 }

@@ -117,4 +117,24 @@ export const HOW_TO_FIX: Record<string, HowToFix> = {
       "Se la descrizione dell'azienda, delle competenze o dei casi d'uso cambia tra sito, LinkedIn e altre fonti di settore, un motore AI ha più difficoltà a costruirsi un quadro chiaro e coerente dell'azienda.",
     fix: "Rileggi e allinea la descrizione dell'azienda (cosa fa, per chi, con quali competenze) su sito, LinkedIn aziendale e i profili di settore in cui l'azienda compare.",
   },
+  "Nessun sito web: Gemini non ha una fonte da citare": {
+    meaning:
+      "Senza un sito, non esiste nessuna pagina di proprietà dell'azienda che un motore AI possa citare direttamente: può solo appoggiarsi a fonti esterne (directory, schede professionali), quando esistono e sono complete.",
+    fix: "Non è recuperabile con una modifica: serve prima di tutto una pagina web, anche minima -- vedi i 3 interventi suggeriti qui sotto.",
+  },
+  "Sito di una pagina con dati strutturati": {
+    meaning:
+      "Una singola pagina web con i dati dell'azienda scritti in un formato che un motore AI legge come fatti certi (nome, indirizzo, orari, tipo di attività), non solo come testo da interpretare.",
+    fix: "Anche un sito di una pagina va bene per iniziare (esistono costruttori gratuiti o a basso costo: Google Sites, Wix, WordPress.com). L'importante è includere un blocco JSON-LD con tipo LocalBusiness o la sotto-categoria specifica (es. Dentist) -- chiedi a chi te lo costruisce di aggiungerlo, o verificalo con il Rich Results Test di Google.",
+  },
+  "Scheda MioDottore completa": {
+    meaning:
+      "Per i professionisti sanitari, MioDottore è tra le fonti più citate dai motori AI quando rispondono a una domanda del tipo \"quale dentista scegliere\" -- più della maggior parte dei siti personali.",
+    fix: "Crea o completa il profilo su MioDottore: servizi offerti, orari, foto dello studio, una breve presentazione. Un profilo vuoto o incompleto viene citato molto meno di uno completo.",
+  },
+  "Scheda Google Business completa": {
+    meaning:
+      "La scheda Google Business (quella che appare su Google Maps e nella ricerca) è spesso l'unica fonte affidabile su orari, indirizzo e categoria per un'attività senza sito.",
+    fix: "Rivendica o crea la scheda su Google Business Profile e compila tutti i campi: categoria corretta, orari, indirizzo, foto, numero di telefono.",
+  },
 };

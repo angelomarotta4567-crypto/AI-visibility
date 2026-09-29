@@ -306,9 +306,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           </div>
         ) : (
           <p style={{ margin: 0, color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
-            {client.website_url
-              ? "Nessuna diagnosi ancora eseguita per questo cliente."
-              : "Aggiungi un sito web al cliente per poter eseguire la diagnosi."}
+            Nessuna diagnosi ancora eseguita per questo cliente.
           </p>
         )}
       </Card>

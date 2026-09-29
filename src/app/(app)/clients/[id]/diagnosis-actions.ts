@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { runDiagnosis } from "@/lib/diagnosis/run";
+import { runDiagnosis, diagnoseNoWebsite } from "@/lib/diagnosis/run";
 
 export async function runDiagnosisAction(clientId: string) {
   const supabase = await createClient();
@@ -12,11 +12,7 @@ export async function runDiagnosisAction(clientId: string) {
     supabase.auth.getUser(),
   ]);
 
-  if (!client?.website_url) {
-    throw new Error("Aggiungi un sito web al cliente prima di eseguire la diagnosi.");
-  }
-
-  const result = await runDiagnosis(client.website_url);
+  const result = client?.website_url ? await runDiagnosis(client.website_url) : diagnoseNoWebsite();
 
   const { data: run, error: runError } = await supabase
     .from("diagnosis_runs")
