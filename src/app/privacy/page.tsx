@@ -1,0 +1,48 @@
+import Link from "next/link";
+import { Card } from "@/components/ds";
+
+export default function PrivacyPage() {
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg-base)",
+        padding: "var(--space-6) var(--space-4)",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <div style={{ maxWidth: 560, width: "100%", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <Link href="/" style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+          ← Torna alla home
+        </Link>
+        <Card title="Privacy">
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
+            <p style={{ margin: 0 }}>
+              Questa pagina descrive i dati raccolti visitando questo sito. Titolare del trattamento: Angelo
+              Marotta, Dalmine (BG).
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Cosa non raccogliamo.</strong> Questo sito non usa
+              cookie di profilazione né strumenti di tracciamento pubblicitario. Non ci sono moduli che richiedono
+              dati personali.
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Contatti diretti.</strong> Se scrivete via telefono,
+              WhatsApp o email, quei dati (numero, indirizzo email, contenuto del messaggio) restano tra voi e
+              Angelo Marotta, usati solo per rispondervi — non vengono condivisi con terzi né usati per altri scopi.
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Le misurazioni.</strong> Il servizio descritto in
+              questa pagina misura la presenza di un&rsquo;azienda nelle risposte dei motori AI usando domande
+              sintetiche, concordate col cliente — non dati raccolti da utenti finali reali.
+            </p>
+            <p style={{ margin: 0 }}>
+              Per qualunque domanda su questi dati potete scrivere direttamente ad Angelo Marotta.
+            </p>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}

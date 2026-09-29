@@ -17,7 +17,7 @@ export default function NotFound() {
         <p style={{ margin: "0 0 var(--space-4)", color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>
           Il link seguito non corrisponde a nessuna pagina esistente, oppure la risorsa cercata è stata rimossa.
         </p>
-        <Link href="/">
+        <Link href="/clients">
           <Button variant="primary" fullWidth>
             Torna ai clienti
           </Button>

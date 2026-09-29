@@ -21,7 +21,7 @@ const SECTIONS = [
 ];
 
 const PHASE_ROUTES: Record<string, string> = {
-  clienti: "/",
+  clienti: "/clients",
   diagnosi: "/diagnosi",
   misurazione: "/misurazione",
   intervento: "/intervento",
@@ -45,7 +45,7 @@ export function AppShell({
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/accedi");
     router.refresh();
   }
 

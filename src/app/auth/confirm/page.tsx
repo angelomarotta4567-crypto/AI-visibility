@@ -21,7 +21,7 @@ export default async function AuthConfirmPage({
   if (token_hash && type) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
-    redirect(error ? "/login?error=confirm_failed" : (params.next ?? "/"));
+    redirect(error ? "/accedi?error=confirm_failed" : (params.next ?? "/clients"));
   }
 
   return <ConfirmClient />;

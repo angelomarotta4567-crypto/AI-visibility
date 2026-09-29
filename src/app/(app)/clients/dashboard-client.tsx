@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, Badge, Button, DataTable, Dialog } from "@/components/ds";
-import { AppShell } from "./app-shell";
+import { AppShell } from "../app-shell";
 import { SEGMENT_LABEL } from "@/lib/segments";
 import { CLIENT_STATUS_LABEL } from "@/lib/status-labels";
-import { deleteClientAction } from "./clients/actions";
+import { deleteClientAction } from "./actions";
 import { ClientAvatar } from "@/components/client-avatar";
 
 export type ClientRow = {

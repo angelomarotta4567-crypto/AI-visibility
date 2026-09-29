@@ -45,7 +45,7 @@ export async function createClientAction(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/");
+  revalidatePath("/clients");
   redirect(`/clients/${data.id}`);
 }
 
@@ -58,5 +58,5 @@ export async function deleteClientAction(clientId: string) {
   const { error } = await supabase.from("clients").delete().eq("id", clientId);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/");
+  revalidatePath("/clients");
 }

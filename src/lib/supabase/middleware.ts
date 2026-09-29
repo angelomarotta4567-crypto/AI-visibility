@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/auth"];
+// "/" è la pagina pubblica di presentazione (non è un prefisso: solo la
+// homepage esatta, non /clients che inizia comunque con "/").
+const PUBLIC_PATHS = ["/accedi", "/auth", "/privacy"];
 
 function isPublicPath(pathname: string) {
+  if (pathname === "/") return true;
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
@@ -42,7 +45,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && !isPublicPath(request.nextUrl.pathname) && !request.nextUrl.pathname.startsWith("/api/")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/accedi";
     url.searchParams.set("redirect_to", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }

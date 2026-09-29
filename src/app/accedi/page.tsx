@@ -55,7 +55,7 @@ function LoginForm() {
         setErrorMessage("Il link di accesso non è valido o è scaduto. Richiedi un nuovo codice.");
         return;
       }
-      router.replace("/");
+      router.replace("/clients");
       router.refresh();
     });
   }, [router]);
@@ -89,7 +89,7 @@ function LoginForm() {
       setErrorMessage("Codice non valido o scaduto. Controlla di averlo copiato correttamente, oppure richiedine uno nuovo.");
       return;
     }
-    router.push("/");
+    router.push("/clients");
     router.refresh();
   }
 

@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/accedi");
   }
 
   return children;

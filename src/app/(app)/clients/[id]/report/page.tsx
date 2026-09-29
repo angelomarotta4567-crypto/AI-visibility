@@ -203,14 +203,14 @@ export default async function ClientReportPage({ params }: { params: Promise<{ i
         </Card>
 
         <Card title="Limiti di questo report" kicker="Da leggere sempre">
-          <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
+          <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
             Le risposte dei motori AI cambiano leggermente ogni volta che vengono interrogati: per questo ogni domanda
             viene ripetuta più volte prima di essere considerata un dato affidabile. Un buon risultato in questo
             report è un segnale positivo di visibilità, ma <strong>non è una prova diretta</strong> che porti più
             vendite: nessun servizio di questo tipo può garantirlo, né garantire un posizionamento fisso su un motore
             specifico.
           </p>
-          <p style={{ margin: "var(--space-3) 0 0", fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
+          <p style={{ margin: "var(--space-3) 0 0", fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
             Per Perplexity in particolare, le fonti citate per una stessa domanda tendono a restare le stesse anche
             ripetendo la domanda più volte a distanza di ore: è un comportamento del motore stesso, non un errore di
             misurazione. Le ripetizioni restano comunque utili per gli altri motori.

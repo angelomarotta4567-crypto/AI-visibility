@@ -41,7 +41,7 @@ export async function updateClientAction(clientId: string, formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/");
+  revalidatePath("/clients");
   revalidatePath(`/clients/${clientId}`);
   redirect(`/clients/${clientId}`);
 }

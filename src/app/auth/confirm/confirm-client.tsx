@@ -17,7 +17,7 @@ export function ConfirmClient() {
     const refresh_token = hashParams.get("refresh_token");
 
     if (!access_token || !refresh_token) {
-      router.replace("/login?error=confirm_failed");
+      router.replace("/accedi?error=confirm_failed");
       return;
     }
 
@@ -26,7 +26,7 @@ export function ConfirmClient() {
 
     const supabase = createClient();
     supabase.auth.setSession({ access_token, refresh_token }).then(({ error }) => {
-      router.replace(error ? "/login?error=confirm_failed" : "/");
+      router.replace(error ? "/accedi?error=confirm_failed" : "/clients");
       router.refresh();
     });
   }, [router]);
