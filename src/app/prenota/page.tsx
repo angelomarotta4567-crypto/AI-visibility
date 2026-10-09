@@ -25,6 +25,10 @@ export default async function PrenotaPage({ searchParams }: { searchParams: Sear
   const citazioni = Number.parseInt(first(sp.c), 10);
   const totale = Number.parseInt(first(sp.t), 10);
   const hasNumbers = Number.isFinite(citazioni) && Number.isFinite(totale) && totale > 0 && citazioni >= 0 && citazioni <= totale;
+  // Facoltativi: lo studio più consigliato nella stessa misurazione (dalla Fotografia / dal foglio QR).
+  const winner = first(sp.w).slice(0, 80);
+  const winnerCount = Number.parseInt(first(sp.wc), 10);
+  const hasWinner = hasNumbers && winner !== "" && Number.isFinite(winnerCount) && winnerCount > citazioni && winnerCount <= totale;
 
   const all = generateSlots();
   const busy = all.length ? await fetchBusy(all[0].start, all[all.length - 1].end) : [];
@@ -47,16 +51,32 @@ export default async function PrenotaPage({ searchParams }: { searchParams: Sear
             AI Visibility · Dalmine
           </Link>
           <h1 style={{ fontSize: "var(--text-2xl)", lineHeight: 1.25, margin: 0, color: "var(--text-primary)" }}>
-            {studioName ? `${studioName}: sentiamoci 20 minuti` : "Sentiamoci 20 minuti"}
+            Essere primi su Google non vuol dire essere consigliati da ChatGPT
           </h1>
-          {hasNumbers && (
+          {hasNumbers ? (
             <p style={{ margin: 0, fontSize: "var(--text-base)", color: "var(--text-primary)", lineHeight: "var(--leading-normal)" }}>
-              Su <strong>{totale}</strong> domande fatte a ChatGPT, Gemini e Perplexity su dentisti in zona, il vostro studio è
-              stato citato <strong>{citazioni === 1 ? "una sola volta" : `${citazioni} volte`}</strong>.
+              Su <strong>{totale}</strong> risposte di ChatGPT, Gemini e Perplexity a domande come «un buon dentista a
+              Dalmine»{hasWinner ? (
+                <>
+                  , <strong>{winner}</strong> è stato consigliato <strong>{winnerCount} volte</strong>.{" "}
+                  {studioName || "Il vostro studio"}:{" "}
+                  <strong style={{ color: "var(--data-negative)" }}>{citazioni === 1 ? "una volta" : `${citazioni} volte`}</strong>.
+                </>
+              ) : (
+                <>
+                  , {studioName || "il vostro studio"} è stato consigliato{" "}
+                  <strong>{citazioni === 1 ? "una sola volta" : `${citazioni} volte`}</strong>.
+                </>
+              )}
+            </p>
+          ) : (
+            <p style={{ margin: 0, fontSize: "var(--text-base)", color: "var(--text-primary)", lineHeight: "var(--leading-normal)" }}>
+              Sempre più pazienti chiedono a un&rsquo;intelligenza artificiale «un buon dentista vicino a me».
+              {studioName ? ` ${studioName} viene consigliato?` : " Il vostro studio viene consigliato?"} Lo controllo gratis.
             </p>
           )}
           <p style={{ margin: 0, fontSize: "var(--text-base)", color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
-            Nella chiamata vi mostro {hasNumbers ? "quali studi escono al vostro posto e perché" : "se il vostro studio viene citato dai motori AI"}, e
+            In 20 minuti al telefono vi mostro {hasNumbers ? "chi esce al vostro posto e perché" : "cosa rispondono le AI su di voi"} e
             le 3 cose più semplici da sistemare. Nessun impegno: se non vi serve, ve lo dico.
           </p>
         </section>
