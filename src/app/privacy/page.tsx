@@ -36,9 +36,10 @@ export default function PrivacyPage() {
               in ogni momento la copia, la correzione o la cancellazione scrivendo ad Angelo Marotta.
             </p>
             <p style={{ margin: 0 }}>
-              <strong style={{ color: "var(--text-primary)" }}>Email di presentazione.</strong> Se avete ricevuto
-              una nostra email, il vostro indirizzo è quello pubblicato dallo studio sul proprio sito. Basta
-              rispondere &ldquo;no grazie&rdquo; e non vi scriveremo più.
+              <strong style={{ color: "var(--text-primary)" }}>Email e fogli informativi.</strong> Scriviamo via
+              email solo agli studi che ce lo hanno chiesto (di persona o al telefono). Il foglio con il codice QR
+              lasciato in studio o spedito per posta contiene solo dati pubblici dello studio. Basta dire o
+              rispondere &ldquo;no grazie&rdquo; e non vi ricontatteremo.
             </p>
             <p style={{ margin: 0 }}>
               <strong style={{ color: "var(--text-primary)" }}>Contatti diretti.</strong> Se scrivete via telefono,
