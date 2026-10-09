@@ -24,8 +24,21 @@ export default function PrivacyPage() {
             </p>
             <p style={{ margin: 0 }}>
               <strong style={{ color: "var(--text-primary)" }}>Cosa non raccogliamo.</strong> Questo sito non usa
-              cookie di profilazione né strumenti di tracciamento pubblicitario. Non ci sono moduli che richiedono
-              dati personali.
+              cookie di profilazione né strumenti di tracciamento pubblicitario.
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Prenotazione di una chiamata.</strong> Se usate la
+              pagina &ldquo;Prenota una chiamata&rdquo;, raccogliamo nome, studio, telefono, email (facoltativa),
+              eventuali note e l&rsquo;orario scelto. Base giuridica: la vostra richiesta di essere ricontattati
+              (art. 6.1.b GDPR). I dati servono solo a fissare e fare la chiamata: finiscono nel calendario Google e
+              in un archivio Airtable di Angelo Marotta, passando per l&rsquo;automazione Make (fornitori che li
+              trattano per suo conto). Li conserviamo al massimo 12 mesi se non diventate clienti. Potete chiederne
+              in ogni momento la copia, la correzione o la cancellazione scrivendo ad Angelo Marotta.
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Email di presentazione.</strong> Se avete ricevuto
+              una nostra email, il vostro indirizzo è quello pubblicato dallo studio sul proprio sito. Basta
+              rispondere &ldquo;no grazie&rdquo; e non vi scriveremo più.
             </p>
             <p style={{ margin: 0 }}>
               <strong style={{ color: "var(--text-primary)" }}>Contatti diretti.</strong> Se scrivete via telefono,

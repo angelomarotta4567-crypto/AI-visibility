@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // "/" è la pagina pubblica di presentazione (non è un prefisso: solo la
 // homepage esatta, non /clients che inizia comunque con "/").
-const PUBLIC_PATHS = ["/accedi", "/auth", "/privacy"];
+const PUBLIC_PATHS = ["/accedi", "/auth", "/privacy", "/prenota"];
 
 function isPublicPath(pathname: string) {
   if (pathname === "/") return true;
