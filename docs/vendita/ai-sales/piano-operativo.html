@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Piano operativo AI Sales</title><link rel="stylesheet" href="stile.css"></head>
+<body><div class="wrap">
+<h1>Piano operativo: primi 3 piloti paganti</h1>
+<p class="muted">Dal 12 ottobre al 10 novembre giorno per giorno, poi fino a febbraio settimana per settimana. Le spunte restano salvate in questo browser.</p>
+<nav class="top"><a class="on" href="piano-operativo.html">Piano</a><a href="manuale-tecnico.html">Manuale tecnico</a><a href="modelli/scheda-filo-rosso.html">Filo rosso</a><a href="modelli/foglio-pre-misurazione.html">Foglio A4</a><a href="LEGGIMI.md">Leggimi</a></nav>
+
+<div class="callout bad"><b>Prima di tutto.</b> Senza i 4 prezzi scritti, il commercialista prenotato e la lista dei 30 studi, questo piano non parte. Sono le prime tre caselle di lunedì 12.</div>
+
+<h2>Dove sei adesso</h2>
+<div class="grid g4" id="today"></div>
+
+<h2>Il percorso: da 30 visite a 2 firme</h2>
+<div class="card"><svg viewBox="0 0 720 230" width="100%" role="img" aria-label="Imbuto di conversione: 30 visite, 15 conversazioni, 7 incontri, 5 proposte, 2 firme">
+<g id="funnel"></g></svg>
+<p class="small">Stime iniziali [Ipotesi]: visita→conversazione 50%, conversazione→incontro 45%, incontro→proposta 70%, proposta→firma 45%. Ogni domenica le confronti con i tuoi numeri veri qui sotto.</p></div>
+
+<h2>I tuoi numeri, settimana per settimana</h2>
+<div class="card scroll"><table id="kpi"><thead><tr><th>Settimana</th><th>Visite</th><th>Conversazioni</th><th>Incontri</th><th>Proposte</th><th>Firme</th></tr></thead><tbody></tbody></table>
+<p class="small">Scrivi nelle caselle. Il numero grigio è il tuo obiettivo. Se ti blocchi su un passaggio, guarda la tabella "Dove si rompe" del manuale (sezione 9).</p></div>
+
+<h2>Il quadro economico</h2>
+<div class="grid g2">
+<div class="card"><h3>I 4 prezzi <span class="cert">[Ipotesi: mia proposta]</span></h3>
+<table><tr><td>Listino percorso 90 giorni</td><td><b>1.200 €</b></td></tr><tr><td>Pilota (solo i primi 3)</td><td><b>600 €</b> = 300 alla firma + 300 a 90 gg, legata al risultato</td></tr><tr><td>Canone dopo il percorso</td><td><b>150 €/mese</b></td></tr><tr><td>Sola misurazione prima/dopo</td><td><b>250 €</b></td></tr></table></div>
+<div class="card"><h3>Incassi previsti (lordi) <span class="cert">[Ipotesi]</span></h3>
+<svg viewBox="0 0 340 170" width="100%" role="img" aria-label="Incassi previsti per mese"><g id="cash"></g></svg>
+<p class="small">Con la ritenuta del 20% ricevi l'80%. Da verificare con il commercialista, insieme al limite di reddito per restare a carico.</p></div>
+</div>
+
+<h2>Calendario giorno per giorno</h2>
+<p class="small"><span class="tag t-vendita">vendita</span><span class="tag t-prep">preparazione</span><span class="tag t-tecnico">formazione tecnica</span><span class="tag t-admin">amministrazione</span><span class="tag t-revisione">revisione</span></p>
+<div id="days"></div>
+
+<h2>Dopo il 10 novembre: le tappe fino a febbraio</h2>
+<div class="card" id="later"></div>
+
+<p class="small noprint"><button id="reset">Azzera tutte le spunte</button></p>
+</div>
+<script>
+const D=[
+// [data ISO, titolo, [[cat,testo,minuti],...]]
+["2026-10-12","Lunedì: le fondamenta",[
+["admin","Scrivi i 4 prezzi (1.200 / 600 / 150 / 250 o i tuoi) e non toccarli per un mese",30],
+["admin","Prenota un commercialista entro venerdì. Domande: prestazione occasionale o P.IVA? Limite per restare a carico?",15],
+["vendita","Se lo \"Studio A\" della landing è uno studio reale: chiamalo oggi",15],
+["prep","Lista 30 studi da Google Maps + MioDottore (modelli/pipeline.csv), esclusa Bergamo città",90],
+["prep","Dividi la lista in 6 giri da 5 studi (vedi colonna \"giro\")",20],
+["tecnico","Manuale tecnico, sezioni 1 e 2: come si impara e Google Business Profile",45]]],
+["2026-10-13","Martedì: i materiali",[
+["prep","Personalizza il foglio A4 (modelli/foglio-pre-misurazione.html) con nome, telefono e QR di /prenota",45],
+["admin","Personalizza la lettera d'incarico (modelli/lettera-incarico.md)",45],
+["prep","Lancia le pre-misurazioni sui primi 10 studi",60],
+["tecnico","Esercizio 1: valuta 3 schede Google di dentisti con la checklist (sezione 2)",45]]],
+["2026-10-14","Mercoledì: pronti a uscire",[
+["admin","Liberatoria e nomina privacy (modelli/liberatoria-e-privacy.md), da far guardare al commercialista",45],
+["prep","Compila i primi 10 fogli A4, stampa e metti in busta con il nome del dottore a mano",90],
+["prep","Stampa la scheda filo rosso e tienila in macchina",10],
+["tecnico","Esercizio 2: valuta 3 profili MioDottore con la checklist (sezione 3)",45]]],
+["2026-10-15","Giovedì: presentazioni e prova del discorso",[
+["vendita","Manda il messaggio a 10 conoscenti per farti presentare un dentista (testo nella scheda filo rosso)",20],
+["vendita","Ripeti il discorso dei 60 secondi ad alta voce 10 volte",30],
+["tecnico","Esercizio 3: aggiungi o verifica i dati strutturati sul tuo sito e controllali con il validatore (sezione 4)",60],
+["prep","Prepara il giro di domani: 3 studi vicini, buste in ordine",15]]],
+["2026-10-16","Venerdì: le prime 3 visite",[
+["vendita","Giro 1: 3 visite tra le 10 e le 11:30",120],
+["vendita","Per ogni busta lasciata: fissa giorno e ora del richiamo",10],
+["revisione","Aggiorna la pipeline: esito e prossimo passo con data",15]]],
+["2026-10-17","Sabato: secondo lotto",[
+["prep","Pre-misurazioni sui 10 studi successivi",60],
+["tecnico","Chiedi a un parente o amico con un'attività di aggiungerti come Gestore della sua scheda Google: sarà la tua palestra",15]]],
+["2026-10-18","Domenica: prima revisione",[
+["revisione","Cosa ha funzionato nelle 3 visite? Cambia UNA frase del discorso",30],
+["tecnico","Prepara il cartoncino QR e il messaggio per le recensioni (modelli/kit-recensioni.md)",30]]],
+["2026-10-19","Lunedì: richiami",[
+["vendita","Richiami delle visite di venerdì (pomeriggio, mai lunedì mattina)",30],
+["prep","Stampa e prepara 10 fogli per i giri di martedì e giovedì",30],
+["tecnico","Palestra: sistema la scheda Google del conoscente seguendo tutta la checklist",60]]],
+["2026-10-20","Martedì: giro 2",[
+["vendita","Giro 2: 5 visite la mattina",180],
+["revisione","Pipeline aggiornata, richiami in agenda",15]]],
+["2026-10-21","Mercoledì: incontri da presentazioni",[
+["vendita","Richiami del giro 2",30],
+["vendita","Incontri nati dalle presentazioni (se ci sono)",60],
+["tecnico","Simula un incontro completo con un amico: prova al telefono, 5 domande, proposta",45]]],
+["2026-10-22","Giovedì: giro 3",[
+["vendita","Giro 3: 5 visite il pomeriggio (15–16:30)",180],
+["revisione","Pipeline aggiornata",15]]],
+["2026-10-23","Venerdì: preparazione incontri",[
+["vendita","Richiami del giro 3",30],
+["prep","Rifai la misurazione per ogni studio con incontro fissato",30],
+["tecnico","Prepara il kit di avvio cliente: checklist accessi e informazioni (sezione 8)",45]]],
+["2026-10-24","Sabato: ultimo lotto",[
+["prep","Pre-misurazioni sugli ultimi 10 studi",60]]],
+["2026-10-25","Domenica: revisione dei numeri",[
+["revisione","Obiettivo: 13 visite e almeno 3 incontri. Sotto i 2 incontri: cambia il foglio (concorrente più grande e in alto) e chiedi altre 10 presentazioni",30]]],
+["2026-10-26","Lunedì: incontri",[
+["vendita","Richiami e conferme degli incontri della settimana",30],
+["vendita","Incontro di diagnosi (pomeriggio)",45],
+["prep","Due copie della lettera d'incarico compilate in borsa",10]]],
+["2026-10-27","Martedì: giro 4 e incontro",[
+["vendita","Giro 4: 5 visite",180],
+["vendita","Incontro di diagnosi",45]]],
+["2026-10-28","Mercoledì: incontri e proposte",[
+["vendita","1 o 2 incontri. Se vedi almeno 2 segnali d'acquisto, fai la proposta subito",90],
+["revisione","Ogni proposta ha una data di risposta in pipeline",10]]],
+["2026-10-29","Giovedì: giro 5",[
+["vendita","Giro 5: 5 visite (ultimo giorno pieno prima del ponte)",180],
+["vendita","Messaggio del 3° giorno a chi ha ricevuto una proposta: un dato nuovo",15]]],
+["2026-10-30","Venerdì: ponte",[
+["vendita","Solo richiami: molti studi sono chiusi per il ponte",20]]],
+["2026-10-31","Sabato: prova generale della consegna",[
+["tecnico","Sul profilo palestra: rifai a cronometro i blocchi Google e recensioni. Annota le ore vere",90]]],
+["2026-11-01","Domenica, festa: revisione",[
+["revisione","Numeri della settimana 3. Obiettivo: 1 firma o 2 proposte aperte",30]]],
+["2026-11-02","Lunedì: follow-up",[
+["vendita","Messaggio del 7° giorno: \"le tengo il posto fino a venerdì\"",20],
+["prep","Kit firma pronto: 2 copie lettera, liberatoria, dati per il pagamento",20]]],
+["2026-11-03","Martedì: giro 6 e chiusure",[
+["vendita","Giro 6: ultime visite per arrivare a 30",150],
+["vendita","Incontri e chiusure",60]]],
+["2026-11-04","Mercoledì: chiusure",[
+["vendita","Incontri rimasti. Una sola domanda di chiusura, poi silenzio",90],
+["admin","Firma? Ricevuta dei 300 € entro 24 ore e data di avvio entro 7 giorni",20]]],
+["2026-11-05","Giovedì: punto di controllo",[
+["revisione","Nessuna firma? Chiama i 2 titolari più interessati: \"Cosa le è mancato per dire di sì?\"",30],
+["vendita","Follow-up delle proposte ancora aperte",20]]],
+["2026-11-06","Venerdì: avvio del pilota 1",[
+["vendita","Incontro di avvio: gli accessi si fanno insieme, dal telefono del titolare (Gestore su Google, sessione MioDottore)",60],
+["tecnico","Imposta il cliente nello strumento e lancia la misurazione iniziale",60]]],
+["2026-11-07","Sabato: pilota 1, Google",[
+["tecnico","Pilota 1, blocco 2: scheda Google completa (checklist sezione 2)",180]]],
+["2026-11-08","Domenica: revisione",[
+["revisione","Numeri della settimana 4 e ore reali spese sul pilota",30]]],
+["2026-11-09","Lunedì: pilota 1, MioDottore",[
+["tecnico","Pilota 1, blocco 3: MioDottore insieme al titolare (sezione 3)",120],
+["vendita","Pilota 2: fissa l'incontro di avvio",15]]],
+["2026-11-10","Martedì: revisione del mese",[
+["revisione","Revisione del mese: visite, conversazioni, incontri, proposte, firme. Dove si è bloccato? Cosa cambi nel mese 2?",60]]]
+];
+const LATER=[
+["10–30 nov","Consegna dei piloti 1 e 2: Google, MioDottore, sito, recensioni nelle prime 3 settimane (circa 10 h/settimana)"],
+["dal 16 nov","Visite a ritmo ridotto: 5 a settimana, 1 giro. Nuova frase: \"Lavoro già con due studi della provincia\""],
+["8 dic","Festa: niente visite"],
+["15–18 dic","Misurazione intermedia (45 giorni) dei piloti, da mostrare ai titolari"],
+["entro 18 dic","Chiudi il terzo pilota. Dal 21 dicembre al 6 gennaio nessuno decide"],
+["gennaio","Caso studio provvisorio da 1 pagina, 2 presentazioni chieste a ogni pilota, primi clienti a listino a 1.200 €. Attenzione alla sessione d'esami"],
+["fine gen – inizio feb","Verifica a 90 giorni: report, seconda rata, testimonianza, proposta canone 150 €/mese"],
+["aprile","Obiettivo 6 mesi: 5–6 canoni + 1–2 percorsi al mese, tra 1.500 e 2.000 €/mese lordi [Ipotesi]. Valuta la P.IVA e una seconda categoria"]];
+const WEEKS=[["Sett. 1 (12–18 ott)",3,1,0,0,0],["Sett. 2 (19–25 ott)",10,5,3,0,0],["Sett. 3 (26 ott–1 nov)",10,5,3,2,1],["Sett. 4 (2–8 nov)",7,4,2,3,1],["Totale",30,15,8,5,2]];
+const LBL={vendita:"vendita",prep:"preparazione",tecnico:"formazione",admin:"amministrazione",revisione:"revisione"};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let done=store.get("aisales_done",{});
+const fmt=new Intl.DateTimeFormat("it-IT",{weekday:"long",day:"numeric",month:"long"});
+function render(){
+ const box=document.getElementById("days");box.innerHTML="";
+ const todayISO=new Date().toISOString().slice(0,10);
+ let tot=0,ok=0,mins=0,minsDone=0;
+ D.forEach(([d,title,tasks],di)=>{
+  const c=document.createElement("div");c.className="card";c.id="d"+d;
+  const dd=tasks.filter((t,i)=>done[d+"_"+i]).length;
+  const m=tasks.reduce((a,t)=>a+t[2],0);
+  c.innerHTML=`<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${fmt.format(new Date(d+"T12:00"))} · ${title}${d===todayISO?' <span class="tag t-revisione">oggi</span>':''}</h3><span class="small">${dd}/${tasks.length} · circa ${Math.round(m/6)/10} h</span></div><ul class="check"></ul>`;
+  const ul=c.querySelector("ul");
+  tasks.forEach(([cat,tx,mn],i)=>{const k=d+"_"+i;tot++;mins+=mn;if(done[k]){ok++;minsDone+=mn}
+   const li=document.createElement("li");if(done[k])li.className="done";
+   li.innerHTML=`<input type="checkbox" ${done[k]?"checked":""} aria-label="fatto"><span class="tx"><span class="tag t-${cat}">${LBL[cat]}</span>${tx}</span><span class="min">${mn}′</span>`;
+   li.querySelector("input").onchange=e=>{done[k]=e.target.checked;store.set("aisales_done",done);render()};
+   ul.appendChild(li)});
+  box.appendChild(c)});
+ const next=D.find(([d])=>d>=todayISO)||D[D.length-1];
+ document.getElementById("today").innerHTML=
+  `<div class="kpi"><b>${ok}/${tot}</b><span>attività fatte</span><div class="bar"><i style="width:${tot?ok/tot*100:0}%"></i></div></div>
+   <div class="kpi"><b>${Math.round(minsDone/60)} / ${Math.round(mins/60)} h</b><span>ore di lavoro previste nei 30 giorni</span></div>
+   <div class="kpi"><b>${next[1].split(":")[0]}</b><span>prossimo giorno: <a href="#d${next[0]}">${fmt.format(new Date(next[0]+"T12:00"))}</a></span></div>
+   <div class="kpi"><b>2 firme</b><span>obiettivo entro il 10 novembre</span></div>`;
+}
+function funnel(){const s=[["Visite",30],["Conversazioni col titolare",15],["Incontri",7],["Proposte",5],["Firme",2]];const g=document.getElementById("funnel");let h="";
+ s.forEach(([l,v],i)=>{const w=40+ (v/30)*560;const x=(720-w)/2-60;const y=i*44+4;
+  h+=`<rect x="${x}" y="${y}" width="${w}" height="36" rx="6" fill="${i===4?'var(--ok)':'var(--accent)'}" opacity="${1-i*0.12}"/><text x="${x+w+10}" y="${y+23}" font-size="14">${v} ${l}</text>`});g.innerHTML=h}
+function cash(){const m=[["nov",600],["dic",300],["gen",600],["feb",1650],["apr*",1750]];const g=document.getElementById("cash");let h="";const max=1800;
+ m.forEach(([l,v],i)=>{const hh=v/max*120;const x=20+i*64;h+=`<rect x="${x}" y="${140-hh}" width="40" height="${hh}" rx="4" fill="var(--accent)"/><text x="${x+20}" y="${134-hh}" font-size="12" text-anchor="middle">${v}€</text><text x="${x+20}" y="158" font-size="12" text-anchor="middle">${l}</text>`});
+ h+=`<text x="330" y="12" font-size="11" text-anchor="end">*aprile: mese tipo con canoni</text>`;g.innerHTML=h}
+function kpi(){const tb=document.querySelector("#kpi tbody");const v=store.get("aisales_kpi",{});
+ WEEKS.forEach((w,wi)=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${w[0]}</td>`;
+  for(let j=1;j<=5;j++){const td=document.createElement("td");
+   if(wi===4){td.innerHTML=`<b id="tot${j}">0</b> <span class="small">/ ${w[j]}</span>`}
+   else{td.innerHTML=`<input type="number" min="0" style="width:56px" value="${v[wi+'_'+j]??''}"> <span class="small">/ ${w[j]}</span>`;
+    td.querySelector("input").oninput=e=>{v[wi+'_'+j]=e.target.value;store.set("aisales_kpi",v);totals()}}
+   tr.appendChild(td)}tb.appendChild(tr)});
+ function totals(){for(let j=1;j<=5;j++){let s=0;for(let wi=0;wi<4;wi++)s+=+(v[wi+'_'+j]||0);document.getElementById("tot"+j).textContent=s}}totals()}
+document.getElementById("later").innerHTML="<table>"+LATER.map(([a,b])=>`<tr><td style="white-space:nowrap"><b>${a}</b></td><td>${b}</td></tr>`).join("")+"</table>";
+document.getElementById("reset").onclick=()=>{if(confirm("Azzero tutte le spunte?")){done={};store.set("aisales_done",done);render()}};
+funnel();cash();kpi();render();
+</script></body></html>
