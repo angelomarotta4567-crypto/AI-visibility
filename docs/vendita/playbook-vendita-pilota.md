@@ -1,6 +1,7 @@
 # Playbook di vendita — Visibilità AI per attività locali (3 casi pilota)
 
-> Documento operativo per Angelo. Segmento di partenza: studi dentistici, Dalmine e provincia di Bergamo
+> Documento operativo per Angelo. Per le deviazioni dal percorso vedi `casistiche-approccio.md`.
+> Segmento di partenza: studi dentistici, Dalmine e provincia di Bergamo
 > (coerente con la landing e con l'esempio "Studio A"). Si adatta ad altre attività locali sostituendo
 > "dentista / paziente / MioDottore" con "categoria / cliente / portale di settore".
 >
