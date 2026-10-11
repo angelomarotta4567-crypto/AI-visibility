@@ -27,6 +27,12 @@ export default function PrivacyPage() {
               cookie di profilazione né strumenti di tracciamento pubblicitario.
             </p>
             <p style={{ margin: 0 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Conteggio anonimo delle visite.</strong> Quando
+              aprite il link o il QR della pagina &ldquo;Prenota una chiamata&rdquo; registriamo solo che una visita è
+              avvenuta, per quale studio e a che ora, per capire quante persone la aprono. Non salviamo indirizzo IP,
+              dispositivo, posizione né cookie: non è possibile risalire a chi siete.
+            </p>
+            <p style={{ margin: 0 }}>
               <strong style={{ color: "var(--text-primary)" }}>Prenotazione di una chiamata.</strong> Se usate la
               pagina &ldquo;Prenota una chiamata&rdquo;, raccogliamo nome, studio, telefono, email (facoltativa),
               eventuali note e l&rsquo;orario scelto. Base giuridica: la vostra richiesta di essere ricontattati

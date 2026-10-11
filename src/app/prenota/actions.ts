@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { fetchBusy, sendBooking } from "@/lib/booking/make";
+import { recordOutreachEvent } from "@/lib/outreach/events";
 import { formatSlotLabel, isOfferedSlot, removeBusy } from "@/lib/booking/slots";
 
 export type BookingState = { error: string | null };
@@ -44,5 +45,6 @@ export async function bookCall(_prev: BookingState, formData: FormData): Promise
     return { error: "Non sono riuscito a salvare la prenotazione. Riprova tra un minuto o chiamami al +39 392 111 5365." };
   }
 
+  await recordOutreachEvent("booking", studioId, studio);
   redirect(`/prenota/confermata?quando=${encodeURIComponent(quando)}`);
 }

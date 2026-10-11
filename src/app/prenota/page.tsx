@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
+import { after } from "next/server";
+import { recordOutreachEvent } from "@/lib/outreach/events";
 import { fetchBusy } from "@/lib/booking/make";
 import { generateSlots, groupByDay, removeBusy } from "@/lib/booking/slots";
 import { BookingForm } from "./booking-form";
@@ -29,6 +32,11 @@ export default async function PrenotaPage({ searchParams }: { searchParams: Sear
   const winner = first(sp.w).slice(0, 80);
   const winnerCount = Number.parseInt(first(sp.wc), 10);
   const hasWinner = hasNumbers && winner !== "" && Number.isFinite(winnerCount) && winnerCount > citazioni && winnerCount <= totale;
+
+  // Conteggio anonimo della visita (solo studio + momento), dopo la risposta
+  // così non rallenta la pagina. Vedi src/lib/outreach/events.ts.
+  const userAgent = (await headers()).get("user-agent") ?? "";
+  after(() => recordOutreachEvent("visit", studioId, studioName, userAgent));
 
   const all = generateSlots();
   const busy = all.length ? await fetchBusy(all[0].start, all[all.length - 1].end) : [];

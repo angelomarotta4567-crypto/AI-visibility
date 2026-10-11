@@ -7,7 +7,10 @@ import { Sidebar, Button } from "@/components/ds";
 const SECTIONS = [
   {
     title: "Workspace",
-    items: [{ key: "clienti", label: "Clienti", icon: "users" }],
+    items: [
+      { key: "clienti", label: "Clienti", icon: "users" },
+      { key: "risultati", label: "Risultati", icon: "trending-up" },
+    ],
   },
   {
     title: "Ciclo",
@@ -22,6 +25,7 @@ const SECTIONS = [
 
 const PHASE_ROUTES: Record<string, string> = {
   clienti: "/clients",
+  risultati: "/risultati",
   diagnosi: "/diagnosi",
   misurazione: "/misurazione",
   intervento: "/intervento",
