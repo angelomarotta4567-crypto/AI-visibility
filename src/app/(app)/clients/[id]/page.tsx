@@ -200,6 +200,23 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             Vedi report
           </Link>
           <Link
+            href={`/clients/${id}/dati-strutturati`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              height: "var(--control-height-sm)",
+              padding: "0 var(--space-3)",
+              border: "var(--border-width) solid var(--border-default)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-primary)",
+              fontSize: "var(--text-xs)",
+              fontWeight: "var(--weight-medium)",
+              textDecoration: "none",
+            }}
+          >
+            Dati strutturati
+          </Link>
+          <Link
             href={`/clients/${id}/edit`}
             style={{
               display: "inline-flex",
