@@ -1,0 +1,21 @@
+{
+  "categoria": "dentista",
+  "provincia": "BG",
+  "obiettivo_prospect": 30,
+  "comuni": [
+    "Dalmine", "Treviolo", "Curno", "Mozzo", "Lallio", "Stezzano", "Zanica",
+    "Levate", "Verdellino", "Osio Sopra", "Osio Sotto", "Boltiere", "Ciserano",
+    "Brembate", "Bonate Sopra", "Filago", "Madone"
+  ],
+  "domande": [
+    "miglior dentista a {comune}",
+    "quale dentista scegliere a {comune}",
+    "dentista consigliato a {comune}",
+    "dentisti a {comune} con buone recensioni",
+    "dentista affidabile vicino a {comune}",
+    "dove trovare un dentista a {comune}",
+    "dentista per impianti a {comune}",
+    "dentista per bambini a {comune}"
+  ],
+  "escludi_se_nome_contiene": ["dentalpro", "vitaldent", "caredent", "dentix", "smile", "poliambulatorio", "centro medico", "clinica", "ospedale", "asst", "humanitas"]
+}
