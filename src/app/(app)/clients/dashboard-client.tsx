@@ -22,21 +22,30 @@ export function DashboardClient({ clients, userEmail }: { clients: ClientRow[]; 
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ClientRow | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function askDelete(e: React.MouseEvent, client: ClientRow) {
     e.stopPropagation();
+    setDeleteError(null);
     setPendingDelete(client);
   }
 
   async function confirmDelete() {
     if (!pendingDelete) return;
     setDeletingId(pendingDelete.id);
+    setDeleteError(null);
     try {
-      await deleteClientAction(pendingDelete.id);
+      const res = await deleteClientAction(pendingDelete.id);
+      if (!res.ok) {
+        setDeleteError(res.error);
+        return;
+      }
+      setPendingDelete(null);
       router.refresh();
+    } catch {
+      setDeleteError("Non sono riuscito a contattare il server. Riprova tra un minuto.");
     } finally {
       setDeletingId(null);
-      setPendingDelete(null);
     }
   }
 
@@ -115,21 +124,31 @@ export function DashboardClient({ clients, userEmail }: { clients: ClientRow[]; 
         )}
       </Card>
       {pendingDelete ? (
-        <Dialog
-          title={`Eliminare "${pendingDelete.name}"?`}
-          description="Cancella anche tutta la sua diagnosi, le misurazioni, gli interventi e i report collegati. Non si può annullare."
-          onClose={() => setPendingDelete(null)}
-          footer={
-            <>
-              <Button variant="secondary" onClick={() => setPendingDelete(null)}>
-                Annulla
-              </Button>
-              <Button variant="danger" onClick={confirmDelete} disabled={deletingId === pendingDelete.id}>
-                {deletingId === pendingDelete.id ? "Elimino…" : "Elimina definitivamente"}
-              </Button>
-            </>
-          }
-        />
+        // Il Dialog del design system è "absolute": senza questo contenitore fisso compare in cima alla
+        // pagina e, con la lista scorsa verso il basso, non si vede (sembra che Elimina non faccia nulla).
+        <div style={{ position: "fixed", inset: 0, zIndex: 50 }}>
+          <Dialog
+            title={`Eliminare "${pendingDelete.name}"?`}
+            description="Cancella anche tutta la sua diagnosi, le misurazioni, gli interventi e i report collegati. Non si può annullare."
+            onClose={() => setPendingDelete(null)}
+            footer={
+              <>
+                <Button variant="secondary" onClick={() => setPendingDelete(null)} disabled={deletingId === pendingDelete.id}>
+                  Annulla
+                </Button>
+                <Button variant="danger" onClick={confirmDelete} disabled={deletingId === pendingDelete.id}>
+                  {deletingId === pendingDelete.id ? "Elimino…" : "Elimina definitivamente"}
+                </Button>
+              </>
+            }
+          >
+            {deleteError ? (
+              <p role="alert" style={{ margin: 0, color: "var(--data-negative)", fontSize: "var(--text-sm)" }}>
+                {deleteError}
+              </p>
+            ) : null}
+          </Dialog>
+        </div>
       ) : null}
     </AppShell>
   );
