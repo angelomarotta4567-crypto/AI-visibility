@@ -5,7 +5,8 @@ import { AppShell } from "../../app-shell";
 import { Card, Badge, Button, Input, Select, Metric, PieChart } from "@/components/ds";
 import { ClientQuerySetsTable } from "./query-sets-table";
 import { CompetitorsTable } from "./competitors-table";
-import { MeasurementCyclesTable } from "./measurement-cycles-table";
+import { MeasurementTimeline } from "./measurement-timeline";
+import { buildTimeline } from "@/lib/measurements/timeline";
 import { InterventionsTable, type InterventionRow } from "./interventions-table";
 import { addCompetitorAction, deleteCompetitorAction, createQuerySetAction, copyFromClientAction } from "./actions";
 import { runDiagnosisAction } from "./diagnosis-actions";
@@ -116,6 +117,26 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     if (c.cycle_type === "baseline") baselineCycle = c;
     if (c.cycle_type === "verification" && !verificationCycle) verificationCycle = c;
   }
+
+  // Tutte le misurazioni, in ordine di tempo, con i risultati di ognuna (Misurazione 1, 2, 3...).
+  const allCycleIds = (measurementCycles ?? []).map((c) => c.id);
+  const [{ data: timelineStats }, { data: timelineSov }] =
+    allCycleIds.length > 0
+      ? await Promise.all([
+          supabase.from("measurement_cycle_engine_stats").select("measurement_cycle_id, engine_code, client_runs, citation_rate").in("measurement_cycle_id", allCycleIds),
+          supabase.from("measurement_cycle_share_of_voice").select("cycle_id, share_of_voice_ai").in("cycle_id", allCycleIds),
+        ])
+      : [{ data: [] }, { data: [] }];
+  const queryCountBySet: Record<string, number> = {};
+  for (const qs of querySets ?? []) queryCountBySet[qs.id] = qs.queries?.[0]?.count ?? 0;
+  const timeline = buildTimeline(
+    (measurementCycles ?? []) as Parameters<typeof buildTimeline>[0],
+    (timelineStats ?? []) as Parameters<typeof buildTimeline>[1],
+    (timelineSov ?? []) as Parameters<typeof buildTimeline>[2],
+    queryCountBySet,
+  );
+  const startRow = timeline.find((r) => r.isStart);
+  const nextNumber = timeline.filter((r) => r.number !== null).length + 1;
 
   const comparisonCycleIds = [baselineCycle?.id, verificationCycle?.id].filter((v): v is string => Boolean(v));
   const [{ data: compEngineStats }, { data: compSov }] =
@@ -406,17 +427,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           activeQuerySet ? (
             <form action={runMeasurement} style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
               <input type="hidden" name="query_set_id" value={activeQuerySet.id} />
-              <Select
-                name="cycle_type"
-                size="sm"
-                defaultValue={hasBaseline ? "verification" : "baseline"}
-                options={[
-                  { value: "baseline", label: "Baseline" },
-                  { value: "verification", label: "Verifica" },
-                ]}
-              />
+              {/* La prima misurazione è il punto di partenza ("baseline"); tutte le altre, anche quelle intermedie, sono verifiche. */}
+              <input type="hidden" name="cycle_type" value={hasBaseline ? "verification" : "baseline"} />
               <Button type="submit" variant="primary" size="sm" iconLeft="play">
-                Avvia misurazione
+                {`Nuova misurazione (n. ${nextNumber})`}
               </Button>
             </form>
           ) : null
@@ -427,19 +441,18 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             Attiva una versione del set di query prima di poter eseguire una misurazione.
           </p>
         ) : measurementCycles && measurementCycles.length > 0 ? (
-          <MeasurementCyclesTable
-            clientId={id}
-            cycles={
-              measurementCycles as {
-                id: string;
-                cycle_type: string;
-                status: string;
-                started_at: string;
-                completed_at: string | null;
-                query_sets: { version: number } | { version: number }[] | null;
-              }[]
-            }
-          />
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            {startRow && startRow.querySetId !== activeQuerySet.id ? (
+              <p style={{ margin: 0, color: "var(--data-warning)", fontSize: "var(--text-sm)" }}>
+                Attenzione: il set di domande attivo (v{activeQuerySet.version}) è diverso da quello della Misurazione {startRow.number} (v{startRow.version ?? "—"}). La prossima misurazione non sarà confrontabile con la partenza.
+              </p>
+            ) : (
+              <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>
+                Ogni misurazione usa lo stesso set di domande attivo (v{activeQuerySet.version}): è così che i numeri restano confrontabili. Per una misurazione intermedia premi «Nuova misurazione».
+              </p>
+            )}
+            <MeasurementTimeline clientId={id} rows={timeline} />
+          </div>
         ) : (
           <p style={{ margin: 0, color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
             Nessuna misurazione ancora eseguita. La prima esecuzione diventa la baseline di Fase 2.
