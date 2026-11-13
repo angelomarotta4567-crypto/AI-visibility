@@ -327,17 +327,6 @@ function ProfilesMock() {
   );
 }
 
-/** 89 quadratini: ogni quadratino è una risposta; quelli colorati citano l'agenzia (10). */
-function Waffle({ total, filled }: { total: number; filled: number }) {
-  return (
-    <div role="img" aria-label={`${filled} risposte su ${total} citano l'agenzia`} style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 5, maxWidth: 340 }}>
-      {Array.from({ length: total }, (_, i) => (
-        <span key={i} style={{ aspectRatio: "1", borderRadius: 4, background: i < filled ? "var(--accent)" : "var(--surface-3)" }} />
-      ))}
-    </div>
-  );
-}
-
 function Steps() {
   const steps = [
     { icon: <Search size={20} />, title: "Misuro", text: "Faccio alle AI le domande dei tuoi clienti e conto quante volte ti nominano." },
@@ -433,43 +422,8 @@ export default function BergamoPage() {
         </div>
       </Section>
 
-      {/* Esempio */}
-      <Section id="esempio" eyebrow="3 · Un esempio" title="Un caso reale: agenzia di Dalmine" intro="Dati anonimi, dalla mia ultima misurazione. Ogni quadratino è una risposta delle AI." tint>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-5)", alignItems: "start" }}>
-          <figure style={{ ...CARD, margin: 0, padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-3)", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "clamp(2.5rem, 8vw, 3.5rem)", fontWeight: "var(--weight-semibold)", lineHeight: 1, color: "var(--data-negative)" }}>11%</span>
-              <span style={{ fontSize: "var(--text-base)", color: "var(--text-secondary)" }}>delle risposte la nominano</span>
-            </div>
-            <Waffle total={89} filled={10} />
-            <figcaption style={{ ...CAPTION, margin: 0 }}>
-              <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: "var(--accent)", marginRight: 6 }} />
-              <strong style={{ color: "var(--text-primary)" }}>10</strong> risposte la nominano ·{" "}
-              <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: "var(--surface-3)", margin: "0 6px 0 4px", border: "var(--border-width) solid var(--border-default)" }} />
-              <strong style={{ color: "var(--text-primary)" }}>79</strong> no
-            </figcaption>
-          </figure>
-
-          <figure style={{ ...CARD, margin: 0, padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-3)", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "clamp(2.5rem, 8vw, 3.5rem)", fontWeight: "var(--weight-semibold)", lineHeight: 1, color: "var(--data-negative)" }}>0 su 9</span>
-              <span style={{ fontSize: "var(--text-base)", color: "var(--text-secondary)" }}>sulla «valutazione gratuita»</span>
-            </div>
-            <div role="img" aria-label="9 risposte, nessuna cita l'agenzia" style={{ display: "grid", gridTemplateColumns: "repeat(9, 1fr)", gap: 6, maxWidth: 340 }}>
-              {Array.from({ length: 9 }, (_, i) => (
-                <span key={i} style={{ aspectRatio: "1", borderRadius: "50%", border: "var(--border-width) dashed var(--data-negative)", background: "var(--data-negative-subtle)" }} />
-              ))}
-            </div>
-            <figcaption style={{ ...CAPTION, margin: 0 }}>
-              <strong style={{ color: "var(--text-primary)" }}>Su questa domanda</strong>, tipica di chi sta scegliendo un&rsquo;agenzia, nessuna delle 9 risposte la nomina. Da qui si parte a sistemare.
-            </figcaption>
-          </figure>
-        </div>
-        <p style={{ ...CAPTION, margin: 0, color: "var(--text-tertiary)" }}>Le risposte delle AI cambiano nel tempo: i numeri danno un ordine di grandezza, non una cifra esatta.</p>
-      </Section>
-
       {/* Contatti */}
-      <Section id="contatti" eyebrow="Parliamone" title="Vuoi sapere se le AI ti nominano?">
+      <Section id="contatti" eyebrow="Parliamone" title="Vuoi sapere se le AI ti nominano?" tint>
         <div style={{ ...CARD, padding: "clamp(20px, 4vw, 32px)", display: "flex", flexWrap: "wrap", gap: "var(--space-6)", alignItems: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- immagine statica in public/, next/image è overkill qui */}
           <img src="/angelo.jpeg" alt={CONTACT_NAME} width={96} height={96} style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover", flex: "none" }} />
